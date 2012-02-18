@@ -1,64 +1,48 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; eproject-config.el --- project workspaces for emacs --- UI part
-;;
-;; Copyright (C) 2008-2010 grischka
-;;
-;; Author: grischka -- grischka@users.sourceforge.net
-;; Created: 24 Jan 2008
-;; Version: 0.4
-;;
-;; This program is free software, released under the GNU General
-;; Public License (GPL, version 2). For details see:
-;;
-;;     http://www.fsf.org/licenses/gpl.html
-;;
-;; This program is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-;; General Public License for more details.
+;; prosjekt-config.el --- project workspaces for emacs --- UI part
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; buffer
-(defvar prj-buffer nil)
+(defvar prsj-buffer nil)
 ;; keymap
-(defvar prj-browse-map nil)
+(defvar prsj-browse-map nil)
 ;; overlays
-(defvar prj-hilight-bar nil)
-(defvar prj-hilight-bar-2 nil)
+(defvar prsj-hilight-bar nil)
+(defvar prsj-hilight-bar-2 nil)
 ;; flag
-(defvar prj-edit-mode nil)
+(defvar prsj-edit-mode nil)
 
 ;; tabs
-(defvar prj-groups)
-(defvar prj-active-group nil)
-(defvar prj-group-top nil)
-(defvar prj-group-left nil)
-(defvar prj-group-tab nil)
+(defvar prsj-groups)
+(defvar prsj-active-group nil)
+(defvar prsj-group-top nil)
+(defvar prsj-group-left nil)
+(defvar prsj-group-tab nil)
 
 ;; tab menus
-(defvar prj-links)
+(defvar prsj-links)
 
 ;; quick search
-(defvar prj-qs-face nil)
-(defvar prj-qs-str nil)
-(defvar prj-qs-len nil)
-(defvar prj-qs-pos nil)
+(defvar prsj-qs-face nil)
+(defvar prsj-qs-str nil)
+(defvar prsj-qs-len nil)
+(defvar prsj-qs-pos nil)
 
-;; from eproject.el
-(defvar prj-list)
-(defvar prj-current)
-(defvar prj-files)
-(defvar prj-curfile)
-(defvar prj-config)
-(defvar prj-tools)
+;; from prosjekt.el
+(defvar prsj-list)
+(defvar prsj-current)
+(defvar prsj-files)
+(defvar prsj-curfile)
+(defvar prsj-config)
+(defvar prsj-tools)
 ;; also
-(declare-function prj-setconfig "eproject")
-(declare-function prj-getconfig "eproject")
-(declare-function prj-setup-all "eproject")
-(declare-function prj-remove-file "eproject")
-(declare-function caddr "eproject")
+(declare-function prsj-setconfig "prosjekt")
+(declare-function prsj-getconfig "prosjekt")
+(declare-function prsj-setup-all "prosjekt")
+(declare-function prsj-remove-file "prosjekt")
+(declare-function caddr "prosjekt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -73,143 +57,143 @@
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Show/Hide the *eproject* buffer
+;; Show/Hide the *prosjekt* buffer
 
 ;;;###autoload
-(defun eproject-setup ()
+(defun prosjekt-setup ()
   "Show the configuration buffer."
   (interactive)
   (let ((map (make-keymap)))
 
     (substitute-key-definition
       'self-insert-command
-      'prj-qsearch
+      'prsj-qsearch
       map
       global-map
       )
 
     (dolist (k '(
-        ("\t" . prj-next-button)
-        ([tab] . prj-next-button)
-        ("\e\t" . prj-prev-button)
-        ([S-tab] . prj-prev-button)
-        ([backtab] . prj-prev-button)
+        ("\t" . prsj-next-button)
+        ([tab] . prsj-next-button)
+        ("\e\t" . prsj-prev-button)
+        ([S-tab] . prsj-prev-button)
+        ([backtab] . prsj-prev-button)
 
-        ([left] . prj-move-left)
-        ([right] . prj-move-right)
-        ([backspace] . prj-qsearch)
-        ([delete] . prj-qsearch)
-        ([127] . prj-qsearch)
-        ([return] . prj-enter)
+        ([left] . prsj-move-left)
+        ([right] . prsj-move-right)
+        ([backspace] . prsj-qsearch)
+        ([delete] . prsj-qsearch)
+        ([127] . prsj-qsearch)
+        ([return] . prsj-enter)
 
-        ([32] . eproject-edit)
-        ([escape] . eproject-setup-quit)
+        ([32] . prosjekt-edit)
+        ([escape] . prosjekt-setup-quit)
 
-        ([down-mouse-1] . prj-mouse)
-        ([down-mouse-2] . prj-mouse)
-        ([mouse-1] . prj-mouse)
-        ([mouse-2] . prj-mouse)
+        ([down-mouse-1] . prsj-mouse)
+        ([down-mouse-2] . prsj-mouse)
+        ([mouse-1] . prsj-mouse)
+        ([mouse-2] . prsj-mouse)
         ([mouse-3] . ignore)
         ([drag-mouse-1] . ignore)
         ))
       (define-key map (car k) (cdr k))
       )
 
-    (cond ((buffer-live-p prj-buffer)
-           (switch-to-buffer prj-buffer)
+    (cond ((buffer-live-p prsj-buffer)
+           (switch-to-buffer prsj-buffer)
            )
           (t
-           (unless prj-buffer
-             (add-hook 'post-command-hook 'prj-post-command-hook)
+           (unless prsj-buffer
+             (add-hook 'post-command-hook 'prsj-post-command-hook)
              )
-           (prj-config-init)
-           (setq prj-buffer (get-buffer-create "*eproject*"))
-           (switch-to-buffer prj-buffer)
+           (prsj-config-init)
+           (setq prsj-buffer (get-buffer-create "*prosjekt*"))
+           (switch-to-buffer prsj-buffer)
            ))
 
-    (setq prj-browse-map map)
-    (prj-qs-clear)
-    (unless prj-edit-mode
+    (setq prsj-browse-map map)
+    (prsj-qs-clear)
+    (unless prsj-edit-mode
       (use-local-map map)
-      (prj-config-print)
+      (prsj-config-print)
       )
     ))
 
-(defun eproject-setup-quit ()
+(defun prosjekt-setup-quit ()
   "Kill the configuration buffer."
   (interactive)
-  (let ((alive (buffer-live-p prj-buffer)))
-    (cond ((and alive prj-edit-mode)
-           (bury-buffer prj-buffer)
+  (let ((alive (buffer-live-p prsj-buffer)))
+    (cond ((and alive prsj-edit-mode)
+           (bury-buffer prsj-buffer)
            )
           (t
            (when alive
-             (kill-buffer prj-buffer)
+             (kill-buffer prsj-buffer)
              )
-           (remove-hook 'post-command-hook 'prj-post-command-hook)
-           (setq prj-buffer nil)
+           (remove-hook 'post-command-hook 'prsj-post-command-hook)
+           (setq prsj-buffer nil)
            ))))
 
-(defun eproject-setup-toggle ()
+(defun prosjekt-setup-toggle ()
   "Show/hide the project configuration browser."
   (interactive)
-  (if (prj-config-active)
-      (eproject-setup-quit)
-    (eproject-setup)
+  (if (prsj-config-active)
+      (prosjekt-setup-quit)
+    (prosjekt-setup)
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Edit mode
 
-(defun eproject-edit ()
+(defun prosjekt-edit ()
   (interactive)
-  (if (eq 'u (car prj-active-group)) (emacs-lisp-mode))
+  (if (eq 'u (car prsj-active-group)) (emacs-lisp-mode))
   (let ((map (make-sparse-keymap)))
-    (define-key map [escape] 'eproject-edit-quit)
-    (setq prj-edit-mode t)
-    (prj-qs-clear)
+    (define-key map [escape] 'prosjekt-edit-quit)
+    (setq prsj-edit-mode t)
+    (prsj-qs-clear)
     (use-local-map map)
-    (prj-config-print)
+    (prsj-config-print)
     ))
 
-(defun eproject-edit-quit ()
+(defun prosjekt-edit-quit ()
   (interactive)
-  (if (eq 'u (car prj-active-group)) (fundamental-mode))
-  (prj-config-parse)
-  (use-local-map prj-browse-map)
-  (setq prj-edit-mode nil)
+  (if (eq 'u (car prsj-active-group)) (fundamental-mode))
+  (prsj-config-parse)
+  (use-local-map prsj-browse-map)
+  (setq prsj-edit-mode nil)
   (setq cursor-type nil)
-  (prj-set-hilite-bar)
-  (prj-setup-all)
+  (prsj-set-hilite-bar)
+  (prsj-setup-all)
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun prj-config-active ()
-  (eq (current-buffer) prj-buffer)
+(defun prsj-config-active ()
+  (eq (current-buffer) prsj-buffer)
   )
 
-(defun prj-save-window-pos ()
-  (p-set (prj-active-group . :pos)
+(defun prsj-save-window-pos ()
+  (p-set (prsj-active-group . :pos)
      (list
       (window-start)
-      (- (line-number-at-pos) prj-group-top)
+      (- (line-number-at-pos) prsj-group-top)
       )))
 
-(defun prj-config-reset ()
-  (dolist (s prj-groups)
+(defun prsj-config-reset ()
+  (dolist (s prsj-groups)
     (p-set (s . :pos) (list 1 0))
     )
-  (setq prj-active-group (car prj-groups))
+  (setq prsj-active-group (car prsj-groups))
   )
 
-(defun prj-config-init ()
+(defun prsj-config-init ()
   (dolist (v '(
-      prj-buffer
-      prj-browse-map
-      prj-hilight-bar
-      prj-hilight-bar-2
-      prj-edit-mode
+      prsj-buffer
+      prsj-browse-map
+      prsj-hilight-bar
+      prsj-hilight-bar-2
+      prsj-edit-mode
       ))
     (set v nil)
     ))
@@ -217,13 +201,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Read back the configuration after edits
 
-(defun prj-config-parse ()
-  (when (and (prj-config-active) prj-edit-mode)
-    (with-current-buffer prj-buffer
+(defun prsj-config-parse ()
+  (when (and (prsj-config-active) prsj-edit-mode)
+    (with-current-buffer prsj-buffer
       (save-excursion
-        (let ((s (p-get (prj-active-group . :scan))) l r e)
-          (prj-goto-line prj-group-top)
-          (if (eq 'u (car prj-active-group))
+        (let ((s (p-get (prsj-active-group . :scan))) l r e)
+          (prsj-goto-line prsj-group-top)
+          (if (eq 'u (car prsj-active-group))
               (setq l (read (concat
                              "(("
                              (buffer-substring-no-properties (point) (point-max))
@@ -242,26 +226,26 @@
                   )
                 (setq l (nreverse l))
                 ))
-          (p-call (prj-active-group . :parse) l)
+          (p-call (prsj-active-group . :parse) l)
           )))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The project config window
 
-;; (makunbound 'prj-groups) (makunbound 'prj-links)
+;; (makunbound 'prsj-groups) (makunbound 'prsj-links)
 
-(defvar prj-groups `(
+(defvar prsj-groups `(
 
    (p nil
       :title "Projects"
       :comment "All projects on a list"
       :pos (1 0)
-      :list prj-list
-      :exec eproject-open
+      :list prsj-list
+      :exec prosjekt-open
       :print ,(lambda (a p)
-               (prj-link (car a) nil a)
-               (prj-link-2 nil p (cadr a))
-               (and (caddr a) (prj-link-2 nil p (caddr a)))
+               (prsj-link (car a) nil a)
+               (prsj-link-2 nil p (cadr a))
+               (and (caddr a) (prsj-link-2 nil p (caddr a)))
                )
       :scan ("^ *\\([^ :]+\\) *: *\\([^ ]+\\) *\\( +: *\\([^ ]+\\)\\)? *$" .
               ,(lambda ()
@@ -276,12 +260,12 @@
                  (unless (cadr a)
                    (error "Error: Project directory empty: %s" (car a))
                    )
-                 (when prj-current
-                   (when (string-equal (cadr a) (cadr prj-current))
-                     (setq prj-current a)
-                     (prj-setconfig "project-name" (car a))
+                 (when prsj-current
+                   (when (string-equal (cadr a) (cadr prsj-current))
+                     (setq prsj-current a)
+                     (prsj-setconfig "project-name" (car a))
                      )))
-               (setq prj-list s)
+               (setq prsj-list s)
                )
       :menu (add remove open close)
       )
@@ -290,23 +274,23 @@
       :title "Files"
       :comment "The files that belong to the project"
       :pos (1 0)
-      :list prj-files
-      :exec eproject-visitfile
+      :list prsj-files
+      :exec prosjekt-visitfile
       :print ,(lambda (a p)
-               (prj-link (car a) nil a)
+               (prsj-link (car a) nil a)
                )
       :scan nil
       :parse ,(lambda (s)
                 (let (b)
                   (dolist (l s)
-                    (setcdr l (cdr (assoc (car l) prj-files)))
+                    (setcdr l (cdr (assoc (car l) prsj-files)))
                     )
-                  (dolist (a prj-files)
+                  (dolist (a prsj-files)
                     (if (setq b (assoc (car a) s))
-                        (if (eq a prj-curfile) (setq prj-curfile b))
-                        (prj-remove-file a)
+                        (if (eq a prsj-curfile) (setq prsj-curfile b))
+                        (prsj-remove-file a)
                         ))
-                  (setq prj-files s)
+                  (setq prsj-files s)
                   ))
       :menu (add-file remove-file visit-file)
       )
@@ -315,17 +299,17 @@
       :title "Tools"
       :comment "Configurable tools and keyboard shortcuts"
       :pos (1 0)
-      :list prj-tools
-      :exec prj-run-tool
+      :list prsj-tools
+      :exec prsj-run-tool
       :print ,(lambda (a p)
-               (prj-link (car a) nil a)
+               (prsj-link (car a) nil a)
                (when (caddr a)
-                 (unless prj-edit-mode
-                   (insert-char 32 (- (- prj-group-tab 12) (- (point) p)))
+                 (unless prsj-edit-mode
+                   (insert-char 32 (- (- prsj-group-tab 12) (- (point) p)))
                    )
                  (insert " (" (caddr a) ")")
                  )
-               (prj-link-2 nil p (cadr a))
+               (prsj-link-2 nil p (cadr a))
                )
       :scan ("^ *\\([^(:]*[^(: ]\\) *\\(([^ ):]+)\\)?\\( *: *\\(.*[^ ]\\)?\\)? *$" .
               ,(lambda ()
@@ -336,7 +320,7 @@
                    (list a c (and b (substring b 1 -1)))
                    )))
       :parse ,(lambda (s)
-               (setq prj-tools s)
+               (setq prsj-tools s)
                )
       :menu ()
       )
@@ -345,10 +329,10 @@
       :title "Settings"
       :comment "Project options"
       :pos (1 0)
-      :list prj-config
-      :exec eproject-edit
+      :list prsj-config
+      :exec prosjekt-edit
       :print ,(lambda (a p)
-               (prj-link-2 (car a) p (cdr a))
+               (prsj-link-2 (car a) p (cdr a))
                )
       :scan ("^ *\\([^ :]+\\) *: *\\(.*[^ ]\\)? *$" .
               ,(lambda ()
@@ -357,16 +341,16 @@
                        )))
       :parse ,(lambda (s)
                (dolist (l s) (setcdr l (cadr l)))
-               (let ((prj-config s) n)
-                 (setq n (prj-getconfig "project-name"))
+               (let ((prsj-config s) n)
+                 (setq n (prsj-getconfig "project-name"))
                  (unless (> (length n) 0)
                    (error "Error: Project name empty.")
                    )
-                 (when prj-current
-                   (setcar prj-current n)
+                 (when prsj-current
+                   (setcar prsj-current n)
                    ))
-               (setq prj-config s)
-               (prj-update-config)
+               (setq prsj-config s)
+               (prsj-update-config)
                )
       :menu ()
       )
@@ -375,184 +359,184 @@
 ;;;       :title "Functions"
 ;;;       :comment "ELisP Utitlities"
 ;;;       :pos (1 0)
-;;;       :list prj-functions
-;;;       :exec eproject-edit
+;;;       :list prsj-functions
+;;;       :exec prosjekt-edit
 ;;;       :print ,(lambda (a p)
 ;;;                (pp a (current-buffer))
 ;;;                )
 ;;;       :parse ,(lambda (s)
-;;;                 (prj-set-functions s)
+;;;                 (prsj-set-functions s)
 ;;;                )
 ;;;       :menu ()
 ;;;       )
    ))
 
 
-(defvar prj-links '(
+(defvar prsj-links '(
 
    ;; projects
    (add "Add" "Add new or existing project to the list"
-         eproject-add
+         prosjekt-add
          )
    (remove "Remove" "Remove a project from the the list"
-         eproject-remove
+         prosjekt-remove
          )
    (open "Open" "Open a Project"
-         eproject-open
+         prosjekt-open
          )
    (close "Close" "Close the current project"
-         eproject-close
+         prosjekt-close
          )
 
    ;; files
    (add-file "Add" "Add a file to the project"
-         eproject-addfile
+         prosjekt-addfile
          )
    (remove-file "Remove" "Remove file from project"
-         eproject-removefile
+         prosjekt-removefile
          )
    (dired "Dired" "Browse project directory - Use 'a' in dired to add file(s) to the project"
-         eproject-dired
+         prosjekt-dired
          )
    (visit-file "Visit" "Visit this file"
-         eproject-visitfile
+         prosjekt-visitfile
          )
 
    ;; edit mode
    (edit "Edit" "Edit this list (spacebar)"
-         eproject-edit
+         prosjekt-edit
          )
    (quit-edit "Quit" "Quit edit mode (escape)"
-         eproject-edit-quit
+         prosjekt-edit-quit
          )
    (revert "Revert" "Revert all configuration to last saved state"
-         eproject-revert
+         prosjekt-revert
          )
    (save "Save" "Save the configuration now"
-         eproject-save
+         prosjekt-save
          )
 
    ;; other
-   (help "Help" "View the 'eproject' documentation."
-         eproject-help
+   (help "Help" "View the 'prosjekt' documentation."
+         prosjekt-help
          )
    (quit "Quit" "Quit configuration area"
-      eproject-setup-quit
+      prosjekt-setup-quit
       )
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Print the config
 
-(defun prj-config-print ()
-  (when (prj-config-active)
+(defun prsj-config-print ()
+  (when (prsj-config-active)
     (let (x f a n title l p (inhibit-read-only t) active)
 
       (setq buffer-read-only nil)
       (buffer-disable-undo)
       (erase-buffer)
 
-      (setq prj-group-left (if prj-edit-mode 0 1))
-      (setq prj-group-tab (+ 26 prj-group-left))
+      (setq prsj-group-left (if prsj-edit-mode 0 1))
+      (setq prsj-group-tab (+ 26 prsj-group-left))
       (setq active
-            (or prj-active-group
-                (setq prj-active-group (car prj-groups))
+            (or prsj-active-group
+                (setq prsj-active-group (car prsj-groups))
                 ))
       (insert "\n")
       (setq n 1)
-      (dolist (s prj-groups)
+      (dolist (s prsj-groups)
         (setq f (eq s active))
-        (when (or f (and prj-current (null prj-edit-mode)))
+        (when (or f (and prsj-current (null prsj-edit-mode)))
           (setq title (p-get (s . :title)))
           (insert-char 32 n)
           (cond (f
                  (setq p (point))
                  (insert title)
-                 (prj-make-hilite-bar 'prj-hilight-bar-2 p (point))
+                 (prsj-make-hilite-bar 'prsj-hilight-bar-2 p (point))
                  )
                 (t
-                 (prj-link title (p-get (s . :comment)) s t)
+                 (prsj-link title (p-get (s . :comment)) s t)
                  ))
           (setq n 2)
           ))
 
-      (dolist (s prj-links)
-        (prj-define-shortcut nil (cadr s) 'ignore)
+      (dolist (s prsj-links)
+        (prsj-define-shortcut nil (cadr s) 'ignore)
         )
-      (dolist (s prj-groups)
-        (prj-define-shortcut nil (symbol-name (car s)) 'prj-key-set-group)
+      (dolist (s prsj-groups)
+        (prsj-define-shortcut nil (symbol-name (car s)) 'prsj-key-set-group)
         )
       (insert "  -")
-      (dolist (id (if prj-edit-mode '(revert save quit-edit) '(edit help quit)))
+      (dolist (id (if prsj-edit-mode '(revert save quit-edit) '(edit help quit)))
          (insert "  ")
-         (prj-link-3 id nil)
+         (prsj-link-3 id nil)
          )
       (insert "\n\n  -")
-      (when prj-current
-        (insert " " (car prj-current) " ")
+      (when prsj-current
+        (insert " " (car prsj-current) " ")
         )
       (insert "-")
-      (unless prj-edit-mode
+      (unless prsj-edit-mode
         (dolist (id (p-get (active . :menu)))
           (insert "  ")
-          (prj-link-3 id nil)
+          (prsj-link-3 id nil)
           )
         )
       (insert "\n\n")
 
-      (when prj-edit-mode
+      (when prsj-edit-mode
         (add-text-properties (point-min) (point)
            '(read-only t intangible t front-sticky t rear-nonsticky t))
         )
 
-      (setq prj-group-top (line-number-at-pos))
+      (setq prsj-group-top (line-number-at-pos))
 
-      (prj-print-items
+      (prsj-print-items
         (p-get (active . :print))
         (eval (p-get (active . :list)))
-        prj-group-left
+        prsj-group-left
        )
 
       (setq p (p-get (active . :pos)))
-      (set-window-start (get-buffer-window prj-buffer) (car p))
-      (prj-goto-line (+ prj-group-top (cadr p)))
+      (set-window-start (get-buffer-window prsj-buffer) (car p))
+      (prsj-goto-line (+ prsj-group-top (cadr p)))
       (unless (eobp)
-        (forward-char prj-group-left)
+        (forward-char prsj-group-left)
         )
       (unless (pos-visible-in-window-p)
         (recenter (/ (window-height) 5))
         )
       (set-buffer-modified-p nil)
-      (cond (prj-edit-mode
+      (cond (prsj-edit-mode
              (buffer-enable-undo)
              (setq cursor-type 'box)
              )
             (t
-             (prj-set-hilite-bar)
+             (prsj-set-hilite-bar)
              (setq buffer-read-only t)
              (setq cursor-type nil)
              ))
       t
       )))
 
-(defun prj-print-items (fn items tab)
+(defun prsj-print-items (fn items tab)
   (dolist (a items)
     (when (stringp (car a))
-      (unless (and (string-match "^ *#" (car a)) (null prj-edit-mode))
+      (unless (and (string-match "^ *#" (car a)) (null prsj-edit-mode))
         (insert-char 32 tab)
         ))
     (funcall fn a (- (point) tab))
     (insert "\n")
     ))
 
-(defun prj-link (text help &optional fn top)
-  (if (and prj-edit-mode (null help))
+(defun prsj-link (text help &optional fn top)
+  (if (and prsj-edit-mode (null help))
       (insert text)
       (let ((p (point)) (f (if top 'link)))
         (insert-text-button
          text
          'help-echo help
-         'action 'prj-action
+         'action 'prsj-action
          'class (or fn 'link)
          'follow-link t
          'face f
@@ -563,44 +547,44 @@
           )
         )))
 
-(defun prj-link-2 (a p b)
+(defun prsj-link-2 (a p b)
   (if a (insert a))
-  (insert-char 32 (- prj-group-tab 1 (- (point) p)))
+  (insert-char 32 (- prsj-group-tab 1 (- (point) p)))
   (if b (insert " : " b) (insert " :"))
   )
 
-(defun prj-link-3 (id f)
-  (let ((a (assq id prj-links)))
+(defun prsj-link-3 (id f)
+  (let ((a (assq id prsj-links)))
     (when a
-      (prj-link (cadr a) (caddr a) a f)
-      (prj-define-shortcut nil (cadr a) (nth 3 a))
+      (prsj-link (cadr a) (caddr a) a f)
+      (prsj-define-shortcut nil (cadr a) (nth 3 a))
     )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Project selection and configuration
 
-(defun prj-action (b)
+(defun prsj-action (b)
   (let ((a (button-get b 'class)))
-    (cond ((memq a prj-links)
+    (cond ((memq a prsj-links)
            (command-execute (nth 3 a))
            )
-          ((memq a prj-groups)
-           (setq prj-active-group a)
-           (prj-config-print)
+          ((memq a prsj-groups)
+           (setq prsj-active-group a)
+           (prsj-config-print)
            )
           (t
-           (p-call (prj-active-group . :exec) a)
+           (p-call (prsj-active-group . :exec) a)
            ))))
 
-(defun prj-key-set-group ()
+(defun prsj-key-set-group ()
   (interactive)
   (let ((c (intern (char-to-string (logand last-input-event 255)))) s)
-      (when (setq s (assoc c prj-groups))
-        (setq prj-active-group s)
-        (prj-config-print)
+      (when (setq s (assoc c prsj-groups))
+        (setq prsj-active-group s)
+        (prsj-config-print)
         )))
 
-(defun prj-define-shortcut (map s fn)
+(defun prsj-define-shortcut (map s fn)
   (let ((c (logior (aref s 0) 32)))
     (define-key
       (or map (current-local-map))
@@ -608,56 +592,56 @@
       fn
       )))
 
-(defun prj-config-get-result (id)
-  (and (prj-config-active)
-       (eq id (car prj-active-group))
-       (nth (cadr (p-get (prj-active-group . :pos)))
-            (eval (p-get (prj-active-group . :list)))
+(defun prsj-config-get-result (id)
+  (and (prsj-config-active)
+       (eq id (car prsj-active-group))
+       (nth (cadr (p-get (prsj-active-group . :pos)))
+            (eval (p-get (prsj-active-group . :list)))
             )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tab between buttons and move files up/down
 
-(defun prj-next-button ()
+(defun prsj-next-button ()
   (interactive)
-  (if prj-qs-pos
-      (prj-qs-next 1)
+  (if prsj-qs-pos
+      (prsj-qs-next 1)
     ))
 
-(defun prj-prev-button ()
+(defun prsj-prev-button ()
   (interactive)
-  (if prj-qs-pos
-      (prj-qs-next -1)
+  (if prsj-qs-pos
+      (prsj-qs-next -1)
   ))
 
-(defun prj-move-left ()
+(defun prsj-move-left ()
   (interactive)
-  (prj-move-to -1)
+  (prsj-move-to -1)
   )
 
-(defun prj-move-right ()
+(defun prsj-move-right ()
   (interactive)
-  (prj-move-to 1)
+  (prsj-move-to 1)
   )
 
-(defun prj-move-to (d &optional cycle)
+(defun prsj-move-to (d &optional cycle)
   (let ((n 0) (x 0))
-    (dolist (s prj-groups)
-      (if (eq s prj-active-group)
+    (dolist (s prsj-groups)
+      (if (eq s prsj-active-group)
           (setq x n))
       (setq n (1+ n))
       )
     (setq x (+ x d))
-    (unless prj-current (setq n 1))
+    (unless prsj-current (setq n 1))
     (if cycle
         (if (< x 0) (setq x (1- n)) (if (>= x n) (setq x 0)))
         (setq x (max 0 (min (1- n) x)))
         )
-    (setq prj-active-group (nth x prj-groups))
-    (prj-config-print)
+    (setq prsj-active-group (nth x prsj-groups))
+    (prsj-config-print)
     ))
 
-(defun prj-enter ()
+(defun prsj-enter ()
   (interactive)
   (let (a b)
     (and (setq b (button-at (point)))
@@ -665,7 +649,7 @@
          (funcall a b)
          )))
 
-(defun prj-mouse ()
+(defun prsj-mouse ()
   (interactive)
   ;;(message "LC: %s" (prin1-to-string last-input-event))
   (let ((i last-input-event) p b a x y tp)
@@ -675,8 +659,8 @@
       (setq tp (nth 6 (cadr i)))
       (setq y (+ (cdr tp) (line-number-at-pos (window-start))))
       (setq x (+ (car tp) 1))
-      (if (>= y prj-group-top)
-          (prj-goto-line y)
+      (if (>= y prsj-group-top)
+          (prsj-goto-line y)
         )
       (and (memq (car i) '(mouse-1 mouse-2))
            (setq b (button-at p))
@@ -687,31 +671,31 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; A hook to maintain the selection bar
 
-(defun prj-post-command-hook ()
+(defun prsj-post-command-hook ()
   (and
-   (prj-config-active)
-   (prj-set-hilite-bar)
+   (prsj-config-active)
+   (prsj-set-hilite-bar)
    ))
 
-(defun prj-set-hilite-bar ()
-  (unless prj-edit-mode
+(defun prsj-set-hilite-bar ()
+  (unless prsj-edit-mode
     ;;(message "LC: %s" (prin1-to-string (cons this-command last-input-event)))
     (let (n m a c e p)
-      (setq m (length (eval (p-get (prj-active-group . :list)))))
+      (setq m (length (eval (p-get (prsj-active-group . :list)))))
       (setq p (line-number-at-pos))
-      (setq n (max prj-group-top
+      (setq n (max prsj-group-top
                    (min (line-number-at-pos)
-                        (1- (+ prj-group-top m))
+                        (1- (+ prsj-group-top m))
                         )))
-      (prj-goto-line n)
+      (prsj-goto-line n)
       (if (< p n)
           (set-window-start nil (point-min))
         )
       (unless (eobp)
         (setq a (point))
-        (forward-char prj-group-left)
+        (forward-char prsj-group-left)
         (setq e (line-end-position))
-        (when (< (setq c (+ a prj-group-tab)) e)
+        (when (< (setq c (+ a prsj-group-tab)) e)
           (save-excursion
             (if (re-search-forward " *:" e t)
                 (setq e (1- (match-end 0)))
@@ -719,11 +703,11 @@
         (while (= (char-after) 32)
           (forward-char 1)
           )
-        (prj-make-hilite-bar 'prj-hilight-bar (point) e)
-        (prj-save-window-pos)
+        (prsj-make-hilite-bar 'prsj-hilight-bar (point) e)
+        (prsj-save-window-pos)
         ))))
 
-(defun prj-make-hilite-bar (s a e)
+(defun prsj-make-hilite-bar (s a e)
   (let (b)
     (if (and (boundp s) (setq b (eval s)))
         (move-overlay b a e)
@@ -736,32 +720,32 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Quick Search
 
-(defun prj-qsearch ()
+(defun prsj-qsearch ()
   (interactive)
-  (setq prj-qs-str
+  (setq prsj-qs-str
         (cond ((member last-command-event '(backspace 127))
-               (substring prj-qs-str 0 (max 0 (1- (length prj-qs-str))))
+               (substring prsj-qs-str 0 (max 0 (1- (length prsj-qs-str))))
                )
               ((eq last-command-event 'delete)
                ""
                )
               (t
-               (concat prj-qs-str (char-to-string last-command-event))
+               (concat prsj-qs-str (char-to-string last-command-event))
                )))
-  (prj-qs-next 0)
+  (prsj-qs-next 0)
   )
 
-(defun prj-qs-clear ()
-  (when prj-qs-face
-    (delete-overlay prj-qs-face)
+(defun prsj-qs-clear ()
+  (when prsj-qs-face
+    (delete-overlay prsj-qs-face)
     )
-  (setq prj-qs-face nil)
-  (setq prj-qs-pos nil)
-  (setq prj-qs-str "")
-  (setq prj-qs-len 0)
+  (setq prsj-qs-face nil)
+  (setq prsj-qs-pos nil)
+  (setq prsj-qs-str "")
+  (setq prsj-qs-len 0)
   )
 
-(defun prj-qs-find (s f p)
+(defun prsj-qs-find (s f p)
   (save-excursion
     (let (r fn beg end start limit)
       (setq s (concat
@@ -770,7 +754,7 @@
                "\\)[^/\\[:space:]]*\\([[:space:]]\\|$\\)"
                ))
 
-      (prj-goto-line prj-group-top)
+      (prsj-goto-line prsj-group-top)
       (setq beg (point))
       (setq end (point-max))
       (goto-char (max p beg))
@@ -798,18 +782,18 @@
                  (goto-char start)
                  )))))))
 
-(defun prj-qs-next (f)
+(defun prsj-qs-next (f)
   (let (k l p a e n s)
-    (setq p prj-qs-pos)
-    (setq l prj-qs-len)
-    (setq s prj-qs-str)
-    (prj-qs-clear)
+    (setq p prsj-qs-pos)
+    (setq l prsj-qs-len)
+    (setq s prsj-qs-str)
+    (prsj-qs-clear)
 
     (setq k (length s))
     (if (= k 0)
         (setq l k)
         (progn
-          (if (setq n (prj-qs-find s f (or p (point))))
+          (if (setq n (prsj-qs-find s f (or p (point))))
               (setq p n l k)
               (setq s (substring s 0 l))
               )
@@ -818,22 +802,22 @@
 
     (when p
       (goto-char (+ p l))
-      (prj-set-hilite-bar)
+      (prsj-set-hilite-bar)
       (when (> l 0)
-        (setq prj-qs-face (make-overlay p (+ p l)))
-        (overlay-put prj-qs-face 'face '(:background "white" :box "black"))
+        (setq prsj-qs-face (make-overlay p (+ p l)))
+        (overlay-put prsj-qs-face 'face '(:background "white" :box "black"))
 
-        (setq prj-qs-pos p)
-        (setq prj-qs-len l)
-        (setq prj-qs-str s)
+        (setq prsj-qs-pos p)
+        (setq prsj-qs-len l)
+        (setq prsj-qs-str s)
 
         (when (setq e (read-key-sequence nil))
           (setq e (listify-key-sequence e))
           (setq  unread-command-events (nconc e unread-command-events))
-          (unless (lookup-key prj-browse-map (vconcat e) t)
-            (prj-qs-clear)
+          (unless (lookup-key prsj-browse-map (vconcat e) t)
+            (prsj-qs-clear)
             ))))
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; eproject-config.el ends here
+;; prosjekt-config.el ends here
