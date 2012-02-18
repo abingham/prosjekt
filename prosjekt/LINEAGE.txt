@@ -1,0 +1,2 @@
+prosjekt originated as a fork of `eproject
+<http://www.emacswiki.org/emacs/eproject>`_. 

@@ -1,0 +1,142 @@
+==========
+ prosjekt
+==========
+
+*project workspaces for emacs*
+
+A project in this sense is:
+  
+  * A set of files that you wish to operate with, and
+  * A set of commands bound to key shorcuts and menu entries
+
+In particular prosjekt lets you switch between projects as easily as
+between files.
+
+Keys
+====
+
+Global:
+
+ * F5        : Toggle project setup
+ * Ctrl-F5   : Browse project directory in dired
+ * Alt-Left  : Previous file
+ * Alt-Right : Next file
+
+In the project setup:
+
+ * Arrow keys   : Navigate
+ * Return       : Open project, file, tool
+ * <letter>     : Quick search
+ * Alt-<letter> : Activate link
+ * Spacebar     : Enter edit mode
+ * Escape       : Quit edit mode
+
+In dired:
+
+ * a : Add file(s) to the project
+
+Setup
+=====
+
+Projects
+--------
+
+This is the global project list. You can open and close projects, and
+add new or already existing ones to the list.
+
+Files
+-----
+
+Files are added to the project simply when they are first visited.
+Similar they are removed then they get killed.  New files are inserted
+after the one that was last viewed.
+
+Tools
+-----
+
+Here you can enter some shell command lines with tools that you wish
+to have at hand, and optionally bind them to key shortcuts.  The tools
+will show up in the menu also.
+
+There are two options that can be put in front of commands:
+
+  * -e <emacs-command>           run lisp command or sexp
+  * -in <directory> <command>    run command in specified directory.
+
+A trailing '&' enables asynchronous execution without redirection.
+Relative paths refer to the project directory.
+
+A new project is initialized with default tool commands.
+
+Settings
+--------
+
+Currently there is only:
+
+    prosjekt-name - name of the project
+    
+
+Edit Mode
+---------
+
+In the project setup, hit the the spacebar to enter edit mode.  You
+can edit pretty much everything except it has little effect to change
+the name of a project other than the current one.
+
+Hit escape to quit the edit mode. Any changes to the configuration are
+saved automatically when the project is closed.
+
+Usage
+=====
+
+To load prosjekt, add this line to your ~/.emacs::
+
+  (load-file "/path/to/prosjekt.el")
+
+prosjekt will automatically start up with the last recently used
+project. It will also restore the frame size and position.  You can
+start emacs with a specific project from the command line using::
+
+  emacs -project <projectname>
+
+Configuration
+=============
+
+There are some variables at top of prosjekt.el that you might want to
+edit.
+
+prosjekt commands
+-----------------
+
+projects:
+
+    * prosjekt-add
+    * prosjekt-remove
+    * prosjekt-open
+    * prosjekt-close
+    * prosjekt-help
+
+files:
+
+    * prosjekt-addfile
+    * prosjekt-removefile
+    * prosjekt-visitfile
+    * prosjekt-prevfile (M-left)
+    * prosjekt-nextfile (M-right)
+
+setup:
+
+    * prosjekt-setup
+    * prosjekt-setup-toggle (f5)
+    * prosjekt-setup-quit
+    * prosjekt-edit
+    * prosjekt-edit-quit
+    * prosjekt-save
+    * prosjekt-revert
+
+other:
+
+    * prosjekt-grep              : run grep on the project files)
+    * prosjekt-dired (C-F5)      : dired project (add files with 'a')
+    * prosjekt-killtool          : kill compiler etc.
+    * prosjekt-killbuffers       : kill all buffers except project files
