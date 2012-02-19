@@ -10,6 +10,22 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; TODO: Are there better, standard versions of these functions?
+(defun prsj-get-string-from-file (filePath)
+  "Return FILEPATH's file content."
+  (with-temp-buffer
+    (insert-file-contents filePath)
+    (buffer-string)))
+
+(defun prsj-write-string-to-file (string file)
+   (with-temp-buffer
+     (insert string)
+     (when (file-writable-p file)
+       (write-region (point-min)
+                     (point-max)
+                     file))))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; User-configurable items:
 (defgroup prsj-group '()
@@ -106,6 +122,7 @@ for all project files (nil/t)."
          )))
 
 ;; with the list of all projects
+;; alist of name -> directory
 (defvar prsj-list)
 
 ;; and the project that was open in the last session (if any)
@@ -379,21 +396,37 @@ for all project files (nil/t)."
          )))
 
 (defun prsj-loadconfig (a)
+  "Load the config for a project.
+``a`` is a (name.dir) project cell."
   (let (lf e)
     (prsj-reset)
+
     (setq prsj-current a)
     (setq prsj-directory (prsj-get-directory a))
+
+    ; Load the project file
     (when (file-regular-p (setq lf (prsj-get-cfg)))
       (load lf nil t)
+
+      ; Update curfile to either the current file in the file list or,
+      ; if that doesn't exist, the head of the file list.
       (setq prsj-curfile
             (or (assoc prsj-curfile prsj-files)
                 (car prsj-files)
                 ))
       )
-    (if (setq e (prsj-getconfig "project-name"))
-        (setcar a e)
-        (prsj-setconfig "project-name" (car a))
+
+    
+    (if (setq e (prsj-getconfig "project-name")); If there's a name in
+						; the project config
+						; file...
+        (setcar a e)	                        ; ...set it in the
+						; project def.
+        (prsj-setconfig "project-name" (car a)) ; ...else, update the
+						; config from the
+						; project def.
         )
+
     (prsj-update-config)
     (prsj-set-functions prsj-functions)
     (setq prsj-version prosjekt-version)
@@ -446,29 +479,53 @@ for all project files (nil/t)."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The core functions:  Open / Close / Add / Remove  Project
 
-(defun prosjekt-open (a)
-  "Open another project."
+(defun prosjekt-open (proj)
+  "Open another project. 
+``proj`` can be a project name or a cons cell (name.directory)"
+
+  ;; TODO: This should only accept one form of argument. We need to
+  ;; change this and then clean up callers who don't respect it.
+
   (interactive
    (list
     (or (prsj-config-get-result 'p)
         (completing-read "Open Project: " (mapcar 'car prsj-list))
         )))
-  (unless (consp a)
-    (let ((b (assoc a prsj-list)))
-      (unless b
-        (error "No such project: %s" a)
+
+  ; If a is just a project name, look up the (name.dir) cell in the
+  ; project list.
+  (unless (consp proj)
+    (let ((proj_in_list (assoc proj prsj-list)))
+      (unless proj_in_list
+        (error "No such project: %s" proj)
         )
-      (setq a b)
+      (setq proj proj_in_list)
       ))
-  (setq a (or (car (member a prsj-list)) a))
+
+  ; Get the project def from the list (in case the argument a was not
+  ; from that list)
+  (setq proj 
+	(or 
+	 (car (member proj prsj-list)) ; Look up in project list 
+	 proj))                      
+
+  ; If a is not the current project, we need to close the current
+  ; project and open a
   (unless (eq a prsj-current)
     (unless (file-directory-p (prsj-get-directory a))
       (error "No such directory: %s" (cadr a))
       )
+    
+    ; Move a to the front of the list
     (setq prsj-list (cons a (delq a prsj-list)))
+    
+    ; Close the current project
     (prosjekt-close)
+
+    ; Load the project config for a
     (prsj-loadconfig a)
     )
+
   (prsj-addhooks)
   (prsj-setup-all)
   (prsj-isearch-setup)
@@ -1125,9 +1182,7 @@ for all project files (nil/t)."
 )
 
 (defun prsj-getconfig (n)
-  (let ((a (cdr (assoc n prsj-config))))
-    (and (stringp a) a)
-    ))
+  (cdr (assoc n prsj-config)))
 
 (defun prsj-setconfig (n v)
   (let ((a (assoc n prsj-config)))
@@ -1284,10 +1339,10 @@ for all project files (nil/t)."
 (defun prosjekt-repopulate ()
   "Repopulate the project based on project-populate-spec."
   (interactive)
-  (unless (prsj-getconfig "project-populate-spec") (error "No project-populate-spec defined."))
+  (unless (prsj-getconfig "populate-spec") (error "No populate-spec defined."))
   (unless prsj-directory (error "No prsj-directory defined."))
   (prosjekt-clear)
-  (let ((spec (eval (read (prsj-getconfig "project-populate-spec")))))
+  (let ((spec (prsj-getconfig "populate-spec")))
     (while spec
                                         ; path is the current
                                         ; project-relative

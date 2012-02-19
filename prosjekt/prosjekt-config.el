@@ -46,6 +46,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; Get the (cdr e) property from plist (car e)
 (defmacro p-get (e)
   `(plist-get ,(car e) ',(cdr e))
   )
