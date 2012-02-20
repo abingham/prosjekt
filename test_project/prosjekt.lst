@@ -1,9 +1,9 @@
 ;; -*- mode: Lisp; -*-
 
 (
- ("version")
+ ("version" 4.5)
  ("project-list"
-  ("prosjekt_test" "/home/abingham/projects/prosjekt/test_project"))
+  ("prosjekt_test" . "/home/abingham/projects/prosjekt/test_project"))
  ("last-open")
  ("frame-pos"
   (top . 14)
