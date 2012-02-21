@@ -27,11 +27,10 @@
   "The global prosjekt configuration.")
 
 (defvar prsj-cur-proj nil
-  "The current project definition.")
+  "The current project definition, nil if no project.")
 
-;; There is a global config file (~/.emacs.d/prosjekt.lst)
 (defun prsj-config-file ()
-  "Get the global configuration filename."
+  "Get the global configuration filename (~/.emacs.d/prosjekt.lst)"
   (expand-file-name 
    "prosjekt.lst"
    (if (boundp 'user-emacs-directory) 
@@ -79,7 +78,7 @@
 		   
 (defun prsj-setkeys (bindings)
   "Set a series of bindings in the minor mode.
-``bindings`` is an alist if (key.function)"
+``bindings`` is an alist if (keycode.function)"
   (let ((keymap (cdr (prsj-get-mode))))
     ))
  
