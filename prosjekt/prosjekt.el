@@ -10,10 +10,10 @@
 ; minor-mode-map-alist entry
 (defvar prosjekt-mode t)
 
-(defvar prsj-cur-proj nil
-  "The current project definition, nil if no project.")
+(defvar prsj-proj nil
+  "The current project definition.")
 
-(defvar prsj-cur-proj-file nil
+(defvar prsj-proj-file nil
   "The filename of the current project.")
 
 (defun prosjekt-startup ()
@@ -30,21 +30,21 @@
   
   (let* ((projects (prsj-get-config-item "project-list"))
 	 (proj_dir (cdr (assoc proj projects))))
-    (setq prsj-cur-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
-    (setq prsj-cur-proj (prsj-read-object-from-file prsj-cur-proj-file))
+    (setq prsj-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
+    (setq prsj-proj (prsj-read-object-from-file prsj-proj-file))
     (prsj-reset-keys)
-    (prsj-setkeys (cdr (assoc "tools" prsj-cur-proj)))
+    (prsj-setkeys (cdr (assoc "tools" prsj-proj)))
     ; TODO: open curfile if it's set
     ))
 
 (defun prosjekt-close ()
   (interactive)
-  (when prsj-cur-proj
+  (when prsj-proj
     (prsj-write-object-to-file 
-     prsj-cur-proj 
-     prsj-cur-proj-file))
-  (setq prsj-cur-proj nil)
-  (setq prsj-cur-proj-file nil)
+     prsj-proj 
+     prsj-proj-file))
+  (setq prsj-proj nil)
+  (setq prsj-proj-file nil)
   (prsj-reset-keys))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
