@@ -112,6 +112,7 @@ This will initialize the entry if needed."
 	(cond ((equal type "emacs")
 	       (define-key keymap key command))
 	      ((equal type "shell")
+	       ; This code below deals with the fact that elisp has dynamic binding. There are possibly cleaner ways to write this: http://www.google.com/cse?cx=004774160799092323420:6-ff2s0o6yi&q=%22FakeClosures%22
 	       (let ((fn (list 'lambda)))
 		 (setcdr fn `(() (interactive) 
 			      (compile ',command)))
