@@ -13,6 +13,9 @@
 (defvar prsj-cur-proj nil
   "The current project definition, nil if no project.")
 
+(defvar prsj-cur-proj-file nil
+  "The filename of the current project.")
+
 (defun prosjekt-startup ()
   "Initialize the global configuration information."
   (prsj-load-config))
@@ -26,18 +29,22 @@
 		     (mapcar 'car (prsj-get-config-item "project-list")))))
   
   (let* ((projects (prsj-get-config-item "project-list"))
-	 (proj_dir (cdr (assoc proj projects)))
-	 (proj_file (expand-file-name "prosjekt.cfg" proj_dir)))
-    (setq prsj-cur-proj (read (prsj-get-string-from-file proj_file)))
+	 (proj_dir (cdr (assoc proj projects))))
+    (setq prsj-cur-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
+    (setq prsj-cur-proj (prsj-read-object-from-file prsj-cur-proj-file))
     (prsj-reset-keys)
     (prsj-setkeys (cdr (assoc "tools" prsj-cur-proj)))
-    ; TODO: set up command key mappings
     ; TODO: open curfile if it's set
     ))
 
 (defun prosjekt-close ()
   (interactive)
+  (when prsj-cur-proj
+    (prsj-write-object-to-file 
+     prsj-cur-proj 
+     prsj-cur-proj-file))
   (setq prsj-cur-proj nil)
+  (setq prsj-cur-proj-file nil)
   (prsj-reset-keys))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -60,28 +67,35 @@
   (cdr (assoc name prsj-config)))
 
 (defun prsj-load-config ()
-  (setq prsj-config 
-	(read 
-	 (prsj-get-string-from-file (prsj-config-file)))))
+  "Load the global config, assiging it to `prsj-config`."
+  (setq 
+   prsj-config 
+   (prsj-read-object-from-file 
+    (prsj-config-file))))
+
+(defun prsj-save-config ()
+  "Save the global config (`prsj-config`) to file."
+  (prsj-write-object-to-file
+   prsj-config
+   (prsj-config-file)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; support for reading elisp code from files
 
 ;; TODO: Are there better, standard versions of these functions?
-(defun prsj-get-string-from-file (filename)
-  "Return FILENAME's complete file content."
+(defun prsj-read-object-from-file (filename)
+  "Read FILENAME's complete contents and 'read' them as a lisp
+  object."
   (with-temp-buffer
     (insert-file-contents filename)
-    (buffer-string)))
+    (read (buffer-string))))
 
-(defun prsj-write-string-to-file (string filename)
+(defun prsj-write-object-to-file (object filename)
   "Write STRING as the contents of FILENAME."
    (with-temp-buffer
-     (insert string)
+     (cl-prettyprint object)
      (when (file-writable-p filename)
-       (write-region (point-min)
-                     (point-max)
-                     file))))
+       (write-file filename))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Routines for dealing with the keymap and bindings.
