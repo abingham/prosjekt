@@ -23,6 +23,9 @@
                      (point-max)
                      file))))
 
+; minor-mode-alist entry
+(defvar prosjekt-mode t)
+
 (defvar prsj-config nil 
   "The global prosjekt configuration.")
 
@@ -61,12 +64,14 @@
 	 (proj_file (expand-file-name "prosjekt.cfg" proj_dir)))
     (setq prsj-cur-proj (read (prsj-get-string-from-file proj_file)))
     (prsj-reset-keys)
-    (prsj-setkeys '())
+    (prsj-setkeys (cdr (assoc "tools" prsj-cur-proj)))
     ; TODO: set up command key mappings
     ; TODO: open curfile if it's set
     ))
 
-(defun prsj-get-mode ()
+(defun prsj-get-mode-map ()
+  "Get the (mode . keymap) cell from minor-mode-map-alist.
+This will initialize the entry if needed."
   (let ((m (assoc 'prosjekt-mode minor-mode-map-alist)))
     (or	m
 	(let ((mode (cons 'prosjekt-mode (make-sparse-keymap))))
@@ -74,33 +79,15 @@
 
 (defun prsj-reset-keys ()
   "Clear the keybindings for the minor mode."
-  (setcdr (prsj-get-mode) (make-sparse-keymap)))
+  (setcdr (prsj-get-mode-map) (make-sparse-keymap)))
 		   
 (defun prsj-setkeys (bindings)
   "Set a series of bindings in the minor mode.
-``bindings`` is an alist if (keycode.function)"
-  (let ((keymap (cdr (prsj-get-mode))))
-    ))
- 
-       
-
-    ;; (when f
-    ;;   (let ((n 0) fn s)
-    ;;     (dolist (a prsj-tools)
-    ;;       (unless (setq fn (nth n prsj-tools-fns))
-    ;;         (setq fn (list 'lambda))
-    ;;         (setq prsj-tools-fns (nconc prsj-tools-fns (list fn)))
-    ;;         )
-    ;;       (setcdr fn `(() (interactive) (prsj-run-tool ',a)))
-    ;;       (setq n (1+ n))
-    ;;       (when (setq s (caddr a))
-    ;;         (define-key map (prsj-parse-key s) (and f fn))
-    ;;         ))))))
-
-   ;(list
-   ; (or (prsj-config-get-result 'p)
-   ;     (completing-read "Open Project: " (mapcar 'car prsj-list))
-   ;     )))
+``bindings`` is an alist if (keycode.function)."
+  (let ((keymap (cdr (prsj-get-mode-map))))
+    (dolist (b bindings)
+      (define-key keymap (read (car b)) (cdr b))
+    )))
 
 ;;   ; If a is just a project name, look up the (name.dir) cell in the
 ;;   ; project list.
