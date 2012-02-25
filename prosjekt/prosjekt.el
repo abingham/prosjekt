@@ -35,6 +35,11 @@
     ; TODO: open curfile if it's set
     ))
 
+(defun prosjekt-close ()
+  (interactive)
+  (setq prsj-cur-proj nil)
+  (prsj-reset-keys))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global config-related functionality
 
