@@ -98,14 +98,26 @@ This will initialize the entry if needed."
   "Clear the keybindings for the minor mode."
   (setcdr (prsj-get-mode-map) (make-sparse-keymap)))
 		   
+(defun prsj-run-tool (cmd)
+  (compile cmd))
+
 (defun prsj-setkeys (bindings)
   "Set a series of bindings in the minor mode.
-``bindings`` is an alist if (keycode.function)."
+``bindings`` is an alist if (keycode type command)."
   (let ((keymap (cdr (prsj-get-mode-map))))
     (dolist (b bindings)
-      (define-key keymap (read (car b)) (cdr b))
-    )))
-
+      (let ((key (read (car b)))
+	    (type (cadr b))
+	    (command (caddr b)))
+	(cond ((equal type "emacs")
+	       (define-key keymap key command))
+	      ((equal type "shell")
+	       (let ((fn (list 'lambda)))
+		 (setcdr fn `(() (interactive) 
+			      (compile ',command)))
+		 (define-key keymap key fn)))
+	      )
+))))
 
 ;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
