@@ -10,6 +10,9 @@
 ; minor-mode-map-alist entry
 (defvar prosjekt-mode t)
 
+(defvar prsj-buffer nil
+  "The buffer for prosjekt editing tasks.")
+
 (defvar prsj-proj nil
   "The current project definition.")
 
@@ -46,6 +49,36 @@
   (setq prsj-proj nil)
   (setq prsj-proj-file nil)
   (prsj-reset-keys))
+
+(defun prosjekt-setup ()
+  (interactive)
+  (unless (boundp 'prsj-proj) (error "No current project."))
+  (cond ((buffer-live-p prsj-buffer)
+	 (switch-to-buffer prsj-buffer))
+	(t
+	 (setq prsj-buffer (get-buffer-create "*prosjekt*"))
+	 (switch-to-buffer prsj-buffer)))
+    
+  (let ((keymap (make-sparse-keymap)))
+    (define-key keymap [escape] 'prsj-setup-save)
+    (use-local-map keymap))
+
+  (cl-prettyprint prsj-proj)
+  )
+
+(defun prsj-setup-save () 
+  (interactive) 
+  (unless (boundp 'prsj-buffer) (error "No edit in progress."))
+  (unless (boundp 'prsj-proj-file) (error "No current project."))
+  (switch-to-buffer prsj-buffer)
+  (setq prsj-proj (read (buffer-string)))
+  (kill-buffer prsj-buffer)
+  (setq prsj-buffer nil)
+
+  ; Update key bindings with edits
+  ; TODO: Other edits to take care of?
+  (prsj-setkeys (cdr (assoc "tools" prsj-proj)))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global config-related functionality
