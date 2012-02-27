@@ -10,18 +10,28 @@
 ; minor-mode-map-alist entry
 (defvar prosjekt-mode t)
 
-(defvar prsj-buffer nil
-  "The buffer for prosjekt editing tasks.")
-
-(defvar prsj-proj nil
-  "The current project definition.")
-
-(defvar prsj-proj-file nil
-  "The filename of the current project.")
-
 (defun prosjekt-startup ()
   "Initialize the global configuration information."
   (prsj-load-config))
+
+(defun prosjekt-new (directory name)
+  "Create a new project."
+  (interactive
+   (list
+    (read-directory-name "Create project in directory: ")
+    (read-string "Project name: ")))
+  ; TODO: Check for duplicate project name
+  (prosjekt-close)
+  (setq prsj-proj-file (expand-file-name "prosjekt.cfg" directory))
+  (setq prsj-proj (prsj-default-project name))
+  (prsj-setkeys (prsj-get-project-item "tools"))
+
+  ; Update the global project list
+  (prsj-set-config-item
+   "project-list"
+   (cons
+    (cons name directory)
+    (prsj-get-config-item "project-list"))))
 
 (defun prosjekt-open (proj)
   "Open a project named PROJ."
@@ -36,7 +46,7 @@
     (setq prsj-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
     (setq prsj-proj (prsj-read-object-from-file prsj-proj-file))
     (prsj-reset-keys)
-    (prsj-setkeys (cdr (assoc "tools" prsj-proj)))
+    (prsj-setkeys (prsj-get-project-item "tools"))
     ; TODO: open curfile if it's set
     ))
 
@@ -48,7 +58,9 @@
      prsj-proj-file))
   (setq prsj-proj nil)
   (setq prsj-proj-file nil)
-  (prsj-reset-keys))
+  (prsj-reset-keys)
+  ;; TODO: save list to ~/.emacs.d/prosjekt.lst
+  )
 
 (defun prosjekt-setup ()
   (interactive)
@@ -64,20 +76,6 @@
     (use-local-map keymap))
 
   (cl-prettyprint prsj-proj)
-  )
-
-(defun prsj-setup-save () 
-  (interactive) 
-  (unless (boundp 'prsj-buffer) (error "No edit in progress."))
-  (unless (boundp 'prsj-proj-file) (error "No current project."))
-  (switch-to-buffer prsj-buffer)
-  (setq prsj-proj (read (buffer-string)))
-  (kill-buffer prsj-buffer)
-  (setq prsj-buffer nil)
-
-  ; Update key bindings with edits
-  ; TODO: Other edits to take care of?
-  (prsj-setkeys (cdr (assoc "tools" prsj-proj)))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -99,6 +97,10 @@
   "Get a value from the global config."
   (cdr (assoc name prsj-config)))
 
+(defun prsj-set-config-item (name val)
+  "Set a value in the global config."
+  (setcdr (assoc name prsj-config) val))
+
 (defun prsj-load-config ()
   "Load the global config, assiging it to `prsj-config`."
   (setq 
@@ -111,6 +113,46 @@
   (prsj-write-object-to-file
    prsj-config
    (prsj-config-file)))
+
+(defun prsj-default-project (name)
+  '(("version" . "0.1") ;; TODO: Get rid of this?
+    ("config" ("name" . name))
+    ("tools" ("[f5]" "emacs" compile))
+    ("files")
+    ("curfile" . nil)
+    
+    ;; TODO: Do we really need this?
+    ("functions")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; active-project related stuff.
+
+(defvar prsj-buffer nil
+  "The buffer for prosjekt editing tasks.")
+
+(defvar prsj-proj nil
+  "The current project definition.")
+
+(defvar prsj-proj-file nil
+  "The filename of the current project.")
+
+(defun prsj-get-project-item (name)
+  (unless (boundp 'prsj-proj) (error "No current project."))
+  (cdr (assoc name prsj-proj)))
+
+(defun prsj-setup-save () 
+  (interactive) 
+  (unless (boundp 'prsj-buffer) (error "No edit in progress."))
+  (unless (boundp 'prsj-proj-file) (error "No current project."))
+  (switch-to-buffer prsj-buffer)
+  (setq prsj-proj (read (buffer-string)))
+  (kill-buffer prsj-buffer)
+  (setq prsj-buffer nil)
+
+  ; Update key bindings with edits
+  ; TODO: Other edits to take care of?
+  (prsj-setkeys (prsj-get-project-item "tools"))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; support for reading elisp code from files
@@ -151,6 +193,10 @@ This will initialize the entry if needed."
 (defun prsj-setkeys (bindings)
   "Set a series of bindings in the minor mode.
 ``bindings`` is an alist if (keycode type command)."
+
+  ;; TODO: We need to redirect the command to a function that will cd
+  ;; to the correct directory before execution.
+
   (let ((keymap (cdr (prsj-get-mode-map))))
     (dolist (b bindings)
       (let ((key (read (car b)))
