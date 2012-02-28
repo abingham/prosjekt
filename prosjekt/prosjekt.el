@@ -213,6 +213,89 @@ This will initialize the entry if needed."
 	      )
 ))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Populate support
+
+; TODO: Add support for skipping common "untracked" directories,
+; e.g. .hg, .svn, etc.
+
+; TODO: Some sort of auto-populate? Picks up everything that matches
+; common source-file extensions
+
+; NOTE: This stuff DOES NOT WORK right now.
+
+(defun prsj-walk-path (dir action)
+  "walk DIR executing ACTION with (dir file)"
+  (cond ((file-directory-p dir)
+	 (or (char-equal ?/ (aref dir(1- (length dir))))
+	     (setq dir (file-name-as-directory dir)))
+	 (let ((lst (directory-files dir nil nil t))
+	       fullname file)
+	   (while lst
+	     (setq file (car lst))
+	     (setq lst (cdr lst))
+	     (cond ((member file '("." "..")))
+		   (t
+		    (and (funcall action dir file)
+			 (setq fullname (concat dir file))
+			 (file-directory-p fullname)
+			 (prsj-walk-path fullname action)))))))
+	(t
+	 (funcall action
+		  (file-name-directory dir)
+		  (file-name-nondirectory dir)))))
+
+(defun prsj-add-if (p dir file)
+  "If `file` matches the regex `p`, dir+file is added to the project."
+  (if (string-match p file)
+      (prj-insert-file (concat dir file) (prj-config-get-result 'f))
+      't))
+
+(defun prosjekt-populate (dir p)
+  "Add all files under DIR which match regex P to the project."
+  (interactive
+   (list 
+    (read-directory-name "Directory: " prj-directory)
+    (read-string "Pattern: " "")))
+  (unless prj-current (error "No project open"))
+
+  ; TODO: Verify that `dir` is under prj-directory? Is this required?
+
+  (when p
+    (prj-walk-path dir
+	       (lambda (dir file) (prj-add-if p dir file)))))
+
+(defun prosjekt-repopulate ()
+  "Repopulate the project based on project-populate-spec."
+  (interactive)
+  (unless (prj-getconfig "project-populate-spec") (error "No project-populate-spec defined."))
+  (unless prj-directory (error "No prj-directory defined."))
+  (eproject-clear)
+  (let ((spec (eval (read (prj-getconfig "project-populate-spec")))))
+    (while spec
+                                        ; path is the current
+                                        ; project-relative
+                                        ; subdirectory
+      (setq path (caar spec))
+
+                                        ; patterns is the list of
+                                        ; patterns to populate with
+                                        ; from that path
+      (setq patterns (cdar spec))
+      (setq spec (cdr spec))
+      (while patterns
+        (setq pattern (car patterns))
+        (setq patterns (cdr patterns))
+
+                                        ; populate using the specified
+                                        ; path and pattern
+        (eproject-populate (concat prj-directory path) pattern)))))
+
+(defun prosjekt-clear ()
+  (interactive)
+  (unless prj-current (error "No project open"))
+  (setq prj-files nil))
+
 ;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
 (prosjekt-startup)
