@@ -78,6 +78,15 @@
   (cl-prettyprint prsj-proj)
   )
 
+(defun prosjekt-add (f)
+  "Add a file to the current project."
+  (interactive
+   (and prsj-proj
+	(list
+	 (read-file-name "Add file to project: " nil nil t nil))))
+  (unless prsj-proj (error "No project open."))
+  (prsj-insert-file f))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global config-related functionality
 
@@ -140,6 +149,10 @@
   (unless (boundp 'prsj-proj) (error "No current project."))
   (cdr (assoc name prsj-proj)))
 
+(defun prsj-set-project-item (name val)
+  (unless (boundp 'prsj-proj) (error "No current project."))
+  (setcdr (assoc name prsj-proj) val))
+
 (defun prsj-setup-save () 
   (interactive) 
   (unless (boundp 'prsj-buffer) (error "No edit in progress."))
@@ -153,6 +166,13 @@
   ; TODO: Other edits to take care of?
   (prsj-setkeys (prsj-get-project-item "tools"))
   )
+
+(defun prsj-insert-file (f)
+  (let ((files (prsj-get-project-item "files")))
+    (unless (assoc f files)
+      (prsj-set-project-item 
+       "files"
+       (cons (list f 0) files)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; support for reading elisp code from files
