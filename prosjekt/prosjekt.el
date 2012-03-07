@@ -35,7 +35,6 @@
 
 (defun prosjekt-open (proj)
   "Open a project named PROJ."
-
   (interactive
    (list
     (completing-read "Open Project: " 
@@ -50,12 +49,17 @@
     ; TODO: open curfile if it's set
     ))
 
+(defun prosjekt-save ()
+  "Save the current project."
+  (interactive)
+  (if prsj-proj
+      (prsj-write-object-to-file
+       prsj-proj
+       prsj-proj-file)))
+  
 (defun prosjekt-close ()
   (interactive)
-  (when prsj-proj
-    (prsj-write-object-to-file 
-     prsj-proj 
-     prsj-proj-file))
+  (prosjekt-save)
   (setq prsj-proj nil)
   (setq prsj-proj-file nil)
   (prsj-reset-keys)
@@ -167,6 +171,8 @@
   (prsj-setkeys (prsj-get-project-item "tools"))
   )
 
+; TODO: This should remove the leading project-dir from the filename
+; (if it starts with the directory.)
 (defun prsj-insert-file (f)
   (let ((files (prsj-get-project-item "files")))
     (unless (assoc f files)
