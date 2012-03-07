@@ -23,6 +23,7 @@
   ; TODO: Check for duplicate project name
   (prosjekt-close)
   (setq prsj-proj-file (expand-file-name "prosjekt.cfg" directory))
+  (setq prsj-proj-dir directory)
   (setq prsj-proj (prsj-default-project name))
   (prsj-setkeys (prsj-get-project-item "tools"))
 
@@ -43,6 +44,7 @@
   (let* ((projects (prsj-get-config-item "project-list"))
 	 (proj_dir (cdr (assoc proj projects))))
     (setq prsj-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
+    (setq prsj-proj-dir proj_dir)
     (setq prsj-proj (prsj-read-object-from-file prsj-proj-file))
     (prsj-reset-keys)
     (prsj-setkeys (prsj-get-project-item "tools"))
@@ -62,6 +64,7 @@
   (prosjekt-save)
   (setq prsj-proj nil)
   (setq prsj-proj-file nil)
+  (setq prsj-proj-dir nil)
   (prsj-reset-keys)
   ;; TODO: save list to ~/.emacs.d/prosjekt.lst
   )
@@ -148,6 +151,9 @@
 
 (defvar prsj-proj-file nil
   "The filename of the current project.")
+
+(defvar prsj-proj-dir nil
+  "The directory of the current project.")
 
 (defun prsj-get-project-item (name)
   (unless (boundp 'prsj-proj) (error "No current project."))
