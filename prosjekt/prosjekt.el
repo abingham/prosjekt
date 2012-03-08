@@ -32,7 +32,13 @@
    "project-list"
    (cons
     (cons name directory)
-    (prsj-get-config-item "project-list"))))
+    (prsj-get-config-item "project-list")))
+
+  ; save the global configuration
+  (prsj-save-config)
+  )
+
+;; TODO: prosjekt-delete
 
 (defun prosjekt-open (proj)
   "Open a project named PROJ."
