@@ -220,7 +220,11 @@ This will initialize the entry if needed."
   (setcdr (prsj-get-mode-map) (make-sparse-keymap)))
 		   
 (defun prsj-run-tool (cmd)
-  (compile cmd))
+  (let ((b (current-buffer))
+	(old-dir default-directory))
+    (when prsj-proj-dir (cd prsj-proj-dir))
+    (compile cmd)
+    (with-current-buffer b (cd old-dir))))
 
 (defun prsj-setkeys (bindings)
   "Set a series of bindings in the minor mode.
@@ -240,10 +244,10 @@ This will initialize the entry if needed."
 	       ; This code below deals with the fact that elisp has dynamic binding. There are possibly cleaner ways to write this: http://www.google.com/cse?cx=004774160799092323420:6-ff2s0o6yi&q=%22FakeClosures%22
 	       (let ((fn (list 'lambda)))
 		 (setcdr fn `(() (interactive) 
-			      (compile ',command)))
+			      (prsj-run-tool ',command)))
 		 (define-key keymap key fn)))
 	      )
-))))
+	))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Populate support
