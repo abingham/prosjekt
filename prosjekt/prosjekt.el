@@ -138,7 +138,7 @@
 
 (defun prsj-default-project (name)
   '(("version" . "0.1") ;; TODO: Get rid of this?
-    ("config" ("name" . name))
+    ("name" . name)
     ("tools" ("[f5]" "emacs" compile))
     ("files")
     ("curfile" . nil)
@@ -185,7 +185,9 @@
 
 (defun prsj-proj-files ()
   "Get the list of files in the active project."
-  (mapcar 'car (prsj-get-project-item "files")))
+  (if (boundp 'prsj-proj)
+      (mapcar 'car (prsj-get-project-item "files"))
+    (list)))
 
 ; TODO: This should remove the leading project-dir from the filename
 ; (if it starts with the directory.)
