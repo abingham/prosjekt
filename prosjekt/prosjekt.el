@@ -7,6 +7,8 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; public API
+
 ; minor-mode-map-alist entry
 (defvar prosjekt-mode t)
 
@@ -99,6 +101,20 @@
   (unless prsj-proj (error "No project open."))
   (prsj-insert-file f))
 
+(defun prosjekt-populate (dir p)
+  "Add all files under DIR which match regex P to the project."
+  (interactive
+   (and prsj-proj-dir
+	(list 
+	 (read-directory-name "Directory: " prsj-proj-dir)
+	 (read-string "Pattern: " ""))))
+  (unless prsj-proj-dir (error "No project open"))
+
+  (when p
+    (prsj-walk-path 
+     dir
+     (lambda (dir file) (prsj-add-if p dir file)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global config-related functionality
 
@@ -123,7 +139,7 @@
   (setcdr (assoc name prsj-config) val))
 
 (defun prsj-load-config ()
-  "Load the global config, assiging it to `prsj-config`."
+  "Load the global config, assigning it to `prsj-config`."
   (setq 
    prsj-config 
    (prsj-read-object-from-file 
@@ -290,22 +306,9 @@ This will initialize the entry if needed."
 (defun prsj-add-if (p dir file)
   "If `file` matches the regex `p`, dir+file is added to the project."
   (if (string-match p file)
-      (prj-insert-file (concat dir file) (prj-config-get-result 'f))
+      (prsj-insert-file (concat dir file))
       't))
 
-(defun prosjekt-populate (dir p)
-  "Add all files under DIR which match regex P to the project."
-  (interactive
-   (list 
-    (read-directory-name "Directory: " prj-directory)
-    (read-string "Pattern: " "")))
-  (unless prj-current (error "No project open"))
-
-  ; TODO: Verify that `dir` is under prj-directory? Is this required?
-
-  (when p
-    (prj-walk-path dir
-	       (lambda (dir file) (prj-add-if p dir file)))))
 
 (defun prosjekt-repopulate ()
   "Repopulate the project based on project-populate-spec."
