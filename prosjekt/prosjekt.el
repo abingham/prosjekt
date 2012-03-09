@@ -78,7 +78,7 @@
 
 (defun prosjekt-setup ()
   (interactive)
-  (unless (boundp 'prsj-proj) (error "No current project."))
+  (unless prsj-proj (error "No current project."))
   (cond ((buffer-live-p prsj-buffer)
 	 (switch-to-buffer prsj-buffer))
 	(t
@@ -173,16 +173,16 @@
   "The directory of the current project.")
 
 (defun prsj-get-project-item (name)
-  (unless (boundp 'prsj-proj) (error "No current project."))
+  (unless prsj-proj (error "No current project."))
   (cdr (assoc name prsj-proj)))
 
 (defun prsj-set-project-item (name val)
-  (unless (boundp 'prsj-proj) (error "No current project."))
+  (unless prsj-proj (error "No current project."))
   (setcdr (assoc name prsj-proj) val))
 
 (defun prsj-setup-save () 
-  (unless (boundp 'prsj-buffer) (error "No edit in progress."))
-  (unless (boundp 'prsj-proj-file) (error "No current project."))
+  (unless prsj-buffer (error "No edit in progress."))
+  (unless prsj-proj-file (error "No current project."))
   (switch-to-buffer prsj-buffer)
   (setq prsj-proj (read (buffer-string)))
   (kill-buffer prsj-buffer)
@@ -195,7 +195,7 @@
 
 (defun prsj-proj-files ()
   "Get the list of files in the active project."
-  (if (boundp 'prsj-proj)
+  (if prsj-proj
       (mapcar 'car (prsj-get-project-item "files"))
     (list)))
 
