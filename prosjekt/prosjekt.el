@@ -104,11 +104,10 @@
 (defun prosjekt-populate (dir p)
   "Add all files under DIR which match regex P to the project."
   (interactive
-   (and prsj-proj-dir
-	(list 
-	 (read-directory-name "Directory: " prsj-proj-dir)
-	 (read-string "Pattern: " ""))))
-  (unless prsj-proj-dir (error "No project open"))
+   (let ((_ (unless prsj-proj-dir (error "No project open."))))
+     (list 
+      (read-directory-name "Directory: " prsj-proj-dir)
+      (read-string "Pattern: " ""))))
 
   (when p
     (prsj-walk-path 
@@ -203,7 +202,7 @@
 (defun prsj-insert-file (f)
   (let ((files (prsj-get-project-item "files"))
 	(rel_file (file-relative-name f prsj-proj-dir)))
-    (unless (assoc f files)
+    (unless (assoc rel_file files)
       (prsj-set-project-item 
        "files"
        (cons (list rel_file 0) files)))))
