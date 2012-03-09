@@ -120,6 +120,32 @@
      dir
      (lambda (dir file) (prsj-add-if p dir file)))))
 
+(defun prosjekt-repopulate ()
+  "Repopulate the project based on populate-spec."
+  (interactive)
+  (unless prsj-proj-dir (error "No project opened."))
+  (let ((spec (prsj-get-project-item "populate-spec")))
+    (unless spec (error "No populate-spec defined."))
+    (prosjekt-clear)
+    (while spec
+                                        ; path is the current
+                                        ; project-relative
+                                        ; subdirectory
+      (setq path (caar spec))
+
+                                        ; patterns is the list of
+                                        ; patterns to populate with
+                                        ; from that path
+      (setq patterns (cdar spec))
+      (setq spec (cdr spec))
+      (while patterns
+        (setq pattern (car patterns))
+        (setq patterns (cdr patterns))
+
+                                        ; populate using the specified
+                                        ; path and pattern
+        (prosjekt-populate (concat prsj-proj-dir path) pattern)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global config-related functionality
 
@@ -187,6 +213,7 @@
   (setcdr (assoc name prsj-proj) val))
 
 (defun prsj-setup-save () 
+  (interactive) ; this is needed because we bind this method to a key.
   (unless prsj-buffer (error "No edit in progress."))
   (unless prsj-proj-file (error "No current project."))
   (switch-to-buffer prsj-buffer)
@@ -313,32 +340,6 @@ This will initialize the entry if needed."
   (if (string-match p file)
       (prsj-insert-file (concat dir file))
       't))
-
-(defun prosjekt-repopulate ()
-  "Repopulate the project based on project-populate-spec."
-  (interactive)
-  (unless (prsj-get-project-item "project-populate-spec") (error "No project-populate-spec defined."))
-  (unless prsj-proj-dir (error "No project opened."))
-  (eproject-clear)
-  (let ((spec (eval (read (prj-getconfig "project-populate-spec")))))
-    (while spec
-                                        ; path is the current
-                                        ; project-relative
-                                        ; subdirectory
-      (setq path (caar spec))
-
-                                        ; patterns is the list of
-                                        ; patterns to populate with
-                                        ; from that path
-      (setq patterns (cdar spec))
-      (setq spec (cdr spec))
-      (while patterns
-        (setq pattern (car patterns))
-        (setq patterns (cdr patterns))
-
-                                        ; populate using the specified
-                                        ; path and pattern
-        (eproject-populate (concat prj-directory path) pattern)))))
 
 ;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
