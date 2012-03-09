@@ -95,10 +95,10 @@
 (defun prosjekt-add (f)
   "Add a file to the current project."
   (interactive
-   (and prsj-proj
-	(list
-	 (read-file-name "Add file to project: " nil nil t nil))))
-  (unless prsj-proj (error "No project open."))
+   (let ((_ (unless prsj-proj (error "No project open."))))
+     (list
+      (read-file-name "Add file to project: " nil nil t nil))))
+  
   (prsj-insert-file f))
 
 (defun prosjekt-populate (dir p)
