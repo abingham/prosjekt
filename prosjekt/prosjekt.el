@@ -170,7 +170,7 @@
   (setcdr (assoc name prsj-proj) val))
 
 (defun prsj-setup-save () 
-  (interactive) 
+  (interactive) ; TODO: Really interactive? Probably not. Fix this.
   (unless (boundp 'prsj-buffer) (error "No edit in progress."))
   (unless (boundp 'prsj-proj-file) (error "No current project."))
   (switch-to-buffer prsj-buffer)
@@ -182,6 +182,10 @@
   ; TODO: Other edits to take care of?
   (prsj-setkeys (prsj-get-project-item "tools"))
   )
+
+(defun prsj-proj-files ()
+  "Get the list of files in the active project."
+  (mapcar 'car (prsj-get-project-item "files")))
 
 ; TODO: This should remove the leading project-dir from the filename
 ; (if it starts with the directory.)
