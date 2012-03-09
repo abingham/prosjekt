@@ -72,7 +72,6 @@
   (setq prsj-proj-file nil)
   (setq prsj-proj-dir nil)
   (prsj-reset-keys)
-  ;; TODO: save list to ~/.emacs.d/prosjekt.lst
   )
 
 (defun prosjekt-setup ()
@@ -137,14 +136,11 @@
    (prsj-config-file)))
 
 (defun prsj-default-project (name)
-  '(("version" . "0.1") ;; TODO: Get rid of this?
-    ("name" . name)
+  '(("name" . name)
     ("tools" ("[f5]" "emacs" compile))
     ("files")
     ("curfile" . nil)
-    
-    ;; TODO: Do we really need this?
-    ("functions")))
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; active-project related stuff.
@@ -170,7 +166,6 @@
   (setcdr (assoc name prsj-proj) val))
 
 (defun prsj-setup-save () 
-  (interactive) ; TODO: Really interactive? Probably not. Fix this.
   (unless (boundp 'prsj-buffer) (error "No edit in progress."))
   (unless (boundp 'prsj-proj-file) (error "No current project."))
   (switch-to-buffer prsj-buffer)
@@ -189,14 +184,13 @@
       (mapcar 'car (prsj-get-project-item "files"))
     (list)))
 
-; TODO: This should remove the leading project-dir from the filename
-; (if it starts with the directory.)
 (defun prsj-insert-file (f)
-  (let ((files (prsj-get-project-item "files")))
+  (let ((files (prsj-get-project-item "files"))
+	(rel_file (file-relative-name f prsj-proj-dir)))
     (unless (assoc f files)
       (prsj-set-project-item 
        "files"
-       (cons (list f 0) files)))))
+       (cons (list rel_file 0) files)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; support for reading elisp code from files

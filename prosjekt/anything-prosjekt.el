@@ -34,27 +34,22 @@
 
 ;;; Code:
 
+(defun prsj-temp-file-name ()
+  (mapcar
+   (lambda (item)
+     (expand-file-name (concat prsj-proj-dir item)))
+   (prsj-proj-files)))
+
 (defvar anything-c-source-prosjekt-files
   '((name . "Files in prosjekt")
     (init . anything-c-source-prosjekt-files-init)
     ;(candidates-in-buffer)
     ; Grab candidates from all project files.
-    (candidates . (lambda () (prsj-proj-files)))
-                ; TODO: Once we're storing proj-dir-relative pathnames
-                ; in the project config, then we'll need to do
-                ; something like the code below
-                ;
-                ;(lambda ()
-                ;    (mapcar (lambda (item)
-                ;              (expand-file-name (concat prsj-proj-dir (car item))))
-                ;            (prsj-proj-files))
+    (candidates . prsj-temp-file-name)
     (type . file)
     ; TODO: Understand this next one better.
-    (real-to-display . (lambda (real) real))
-                         ;(if real
-                         ;    (cadr (split-string real
-                         ;                        (concat
-                         ;                         (expand-file-name (cadr prj-current)) "/"))))))
+    (real-to-display . (lambda (real)
+                         (file-relative-name real prsj-proj-dir)))
     )
   "Search for files in the current prosjekt.")
 
