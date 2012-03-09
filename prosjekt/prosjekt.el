@@ -76,6 +76,12 @@
   (prsj-reset-keys)
   )
 
+; TODO: Normalize the error messages. "No project open." everywhere,
+; or whatever.
+(defun prosjekt-clear ()
+  (interactive)
+  (prsj-set-project-item "files" nil))
+
 (defun prosjekt-setup ()
   (interactive)
   (unless prsj-proj (error "No current project."))
@@ -303,17 +309,16 @@ This will initialize the entry if needed."
 		  (file-name-nondirectory dir)))))
 
 (defun prsj-add-if (p dir file)
-  "If `file` matches the regex `p`, dir+file is added to the project."
+  "If FILE matches the regex P, DIR/FILE is added to the project."
   (if (string-match p file)
       (prsj-insert-file (concat dir file))
       't))
 
-
 (defun prosjekt-repopulate ()
   "Repopulate the project based on project-populate-spec."
   (interactive)
-  (unless (prj-getconfig "project-populate-spec") (error "No project-populate-spec defined."))
-  (unless prj-directory (error "No prj-directory defined."))
+  (unless (prsj-get-project-item "project-populate-spec") (error "No project-populate-spec defined."))
+  (unless prsj-proj-dir (error "No project opened."))
   (eproject-clear)
   (let ((spec (eval (read (prj-getconfig "project-populate-spec")))))
     (while spec
@@ -334,11 +339,6 @@ This will initialize the entry if needed."
                                         ; populate using the specified
                                         ; path and pattern
         (eproject-populate (concat prj-directory path) pattern)))))
-
-(defun prosjekt-clear ()
-  (interactive)
-  (unless prj-current (error "No project open"))
-  (setq prj-files nil))
 
 ;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
