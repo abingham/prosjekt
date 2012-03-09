@@ -34,37 +34,37 @@
 
 ;;; Code:
 
-;; (defvar anything-c-source-prosjekt-files
-;;   '((name . "Files in prosjekt")
-;;     (init . anything-c-source-prosjekt-files-init)
-;;     ;(candidates-in-buffer)
-;;     ; Grab candidates from all project files.
-;;     (candidates . (prsj-proj-files)
-;;                 ; TODO: Once we're storing proj-dir-relative pathnames
-;;                 ; in the project config, then we'll need to do
-;;                 ; something like the code below
-;;                 ;
-;;                 ;(lambda ()
-;;                 ;    (mapcar (lambda (item)
-;;                 ;              (expand-file-name (concat prsj-proj-dir (car item))))
-;;                 ;            (prsj-proj-files))
-;;     (type . file)
-;;     ; TODO: Understand this next one better.
-;;     (real-to-display . (lambda (real) real))
-;;                          ;(if real
-;;                          ;    (cadr (split-string real
-;;                          ;                        (concat
-;;                          ;                         (expand-file-name (cadr prj-current)) "/"))))))
-;;     )
-;;   "Search for files in the current prosjekt.")
+(defvar anything-c-source-prosjekt-files
+  '((name . "Files in prosjekt")
+    (init . anything-c-source-prosjekt-files-init)
+    ;(candidates-in-buffer)
+    ; Grab candidates from all project files.
+    (candidates . (lambda () (prsj-proj-files)))
+                ; TODO: Once we're storing proj-dir-relative pathnames
+                ; in the project config, then we'll need to do
+                ; something like the code below
+                ;
+                ;(lambda ()
+                ;    (mapcar (lambda (item)
+                ;              (expand-file-name (concat prsj-proj-dir (car item))))
+                ;            (prsj-proj-files))
+    (type . file)
+    ; TODO: Understand this next one better.
+    (real-to-display . (lambda (real) real))
+                         ;(if real
+                         ;    (cadr (split-string real
+                         ;                        (concat
+                         ;                         (expand-file-name (cadr prj-current)) "/"))))))
+    )
+  "Search for files in the current prosjekt.")
 
-;; (defun anything-c-source-prosjekt-files-init ()
-;;   "Build `anything-candidate-buffer' of prosjekt files."
-;;   (with-current-buffer (anything-candidate-buffer 'local)
-;;     (mapcar
-;;      (lambda (item)
-;;        (insert (format "%s/%s\n" (cadr prj-current) (car item))))
-;;      prsj-proj-files)))
+(defun anything-c-source-prosjekt-files-init ()
+  "Build `anything-candidate-buffer' of prosjekt files."
+  (with-current-buffer (anything-candidate-buffer 'local)
+    (mapcar
+     (lambda (item)
+       (insert (format "%s/%s\n" (prsj-get-project-item "name") item)))
+     (prsj-proj-files))))
 
 (defvar anything-c-source-prosjekt-projects
   '((name . "Prosjekt projects")
