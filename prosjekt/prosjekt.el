@@ -171,16 +171,24 @@
 
 (defun prsj-load-config ()
   "Load the global config, assigning it to `prsj-config`."
-  (setq 
-   prsj-config 
-   (prsj-read-object-from-file 
-    (prsj-config-file))))
+  (let ((fname (prsj-config-file)))
+    (setq
+     prsj-config
+     (if (file-exists-p fname)
+	 (prsj-read-object-from-file 
+	  (prsj-config-file))
+       (prsj-default-config)))))
 
 (defun prsj-save-config ()
   "Save the global config (`prsj-config`) to file."
   (prsj-write-object-to-file
    prsj-config
    (prsj-config-file)))
+
+(defun prsj-default-config ()
+  '(("version" . 0.1)
+    ("project-list")
+    ("last-open")))
 
 (defun prsj-default-project (name)
   '(("name" . name)
@@ -284,9 +292,6 @@ This will initialize the entry if needed."
   "Set a series of bindings in the minor mode.
 ``bindings`` is an alist if (keycode type command)."
 
-  ;; TODO: We need to redirect the command to a function that will cd
-  ;; to the correct directory before execution.
-
   (let ((keymap (cdr (prsj-get-mode-map))))
     (dolist (b bindings)
       (let ((key (read (car b)))
@@ -295,7 +300,10 @@ This will initialize the entry if needed."
 	(cond ((equal type "emacs")
 	       (define-key keymap key command))
 	      ((equal type "shell")
-	       ; This code below deals with the fact that elisp has dynamic binding. There are possibly cleaner ways to write this: http://www.google.com/cse?cx=004774160799092323420:6-ff2s0o6yi&q=%22FakeClosures%22
+	       ; This code below deals with the fact that elisp has
+	       ; dynamic binding. There are possibly cleaner ways to
+	       ; write this:
+	       ; http://www.google.com/cse?cx=004774160799092323420:6-ff2s0o6yi&q=%22FakeClosures%22
 	       (let ((fn (list 'lambda)))
 		 (setcdr fn `(() (interactive) 
 			      (prsj-run-tool ',command)))
@@ -311,8 +319,6 @@ This will initialize the entry if needed."
 
 ; TODO: Some sort of auto-populate? Picks up everything that matches
 ; common source-file extensions
-
-; NOTE: This stuff DOES NOT WORK right now.
 
 (defun prsj-walk-path (dir action)
   "walk DIR executing ACTION with (dir file)"
@@ -343,8 +349,8 @@ This will initialize the entry if needed."
 
 ;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
-(prosjekt-startup)
 
+(prosjekt-startup)
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ;; prosjekt.el ends here
