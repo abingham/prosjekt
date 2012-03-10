@@ -89,13 +89,14 @@
 	 (switch-to-buffer prsj-buffer))
 	(t
 	 (setq prsj-buffer (get-buffer-create "*prosjekt*"))
-	 (switch-to-buffer prsj-buffer)))
-    
-  (let ((keymap (make-sparse-keymap)))
-    (define-key keymap [escape] 'prsj-setup-save)
-    (use-local-map keymap))
+	 (switch-to-buffer prsj-buffer)
+	 (emacs-lisp-mode)
 
-  (cl-prettyprint prsj-proj)
+	 (let ((keymap (make-sparse-keymap)))
+	   (define-key keymap [escape] 'prsj-setup-save)
+	   (use-local-map keymap))
+	 
+	 (cl-prettyprint prsj-proj)))
   )
 
 (defun prosjekt-add (f)
