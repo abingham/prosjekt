@@ -101,8 +101,12 @@
 	   (define-key keymap [escape] 'prsj-setup-save)
 	   (use-local-map keymap))
 	 
-	 (cl-prettyprint prsj-proj)))
-  )
+	 (cl-prettyprint prsj-proj)
+
+	 (goto-char (point-min))
+	 ) ; t
+	)  ; cond
+  )        ; defun
 
 (defun prosjekt-add (f)
   "Add a file to the current project."
