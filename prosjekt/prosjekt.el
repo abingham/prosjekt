@@ -56,7 +56,11 @@
     (setq prsj-proj (prsj-read-object-from-file prsj-proj-file))
     (prsj-reset-keys)
     (prsj-setkeys (prsj-get-project-item "tools"))
-    ; TODO: open curfile if it's set
+    (prsj-set-hooks)
+    (let ((curfile (prsj-get-project-item "curfile")))
+      (if curfile 
+	  (find-file 
+	   (expand-file-name curfile prsj-proj-dir))))
     ))
 
 (defun prosjekt-save ()
@@ -74,6 +78,7 @@
   (setq prsj-proj-file nil)
   (setq prsj-proj-dir nil)
   (prsj-reset-keys)
+  (prsj-clear-hooks)
   )
 
 ; TODO: Normalize the error messages. "No project open." everywhere,
@@ -199,6 +204,21 @@
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; hooks
+
+(defun prsj-set-hooks ()
+  (add-hook 'find-file-hook 'prsj-find-file-hook))
+
+(defun prsj-clear-hooks ()
+  (remove-hook 'find-file-hook 'prsj-find-file-hook))
+
+(defun prsj-find-file-hook ()
+  (let* ((abs_fname (buffer-file-name (current-buffer)))
+	 (rel_fname (file-relative-name abs_fname prsj-proj-dir)))
+    (if (member rel_fname (prsj-proj-files))
+	(prsj-set-project-item "curfile" rel_fname))))
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; active-project related stuff.
 
 (defvar prsj-buffer nil
@@ -282,12 +302,20 @@ This will initialize the entry if needed."
   "Clear the keybindings for the minor mode."
   (setcdr (prsj-get-mode-map) (make-sparse-keymap)))
 		   
-(defun prsj-run-tool (cmd)
-  (let ((b (current-buffer))
-	(old-dir default-directory))
-    (when prsj-proj-dir (cd prsj-proj-dir))
-    (compile cmd)
-    (with-current-buffer b (cd old-dir))))
+;; (defun prsj-run-tool (cmd)
+;;   (let ((b (current-buffer))
+;; 	(old-dir default-directory))
+;;     (when prsj-proj-dir (cd prsj-proj-dir))
+;;     (compile cmd)
+;;     (with-current-buffer b (cd old-dir))))
+
+(defmacro prsj-run-tool (buff-type cmd)
+  ;; TODO: Use temp symbols for b and old-dir
+  `(let ((b (current-buffer))
+	 (old-dir default-directory))
+     (when prsj-proj-dir (cd prsj-proj-dir))
+     (buff-type cmd)
+     (with-current-buffer b (cd old-dir))))
 
 (defun prsj-setkeys (bindings)
   "Set a series of bindings in the minor mode.
