@@ -101,7 +101,7 @@
 	   (define-key keymap [escape] 'prsj-setup-save)
 	   (use-local-map keymap))
 	 
-	 (cl-prettyprint prsj-proj)
+	 (insert (pp-to-string prsj-proj))
 
 	 (goto-char (point-min))
 	 ) ; t
@@ -287,7 +287,7 @@
 (defun prsj-write-object-to-file (object filename)
   "Write STRING as the contents of FILENAME."
    (with-temp-buffer
-     (cl-prettyprint object)
+     (insert (pp-to-string object))
      (when (file-writable-p filename)
        (write-file filename))))
 
