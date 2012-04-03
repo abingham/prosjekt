@@ -306,20 +306,12 @@ This will initialize the entry if needed."
   "Clear the keybindings for the minor mode."
   (setcdr (prsj-get-mode-map) (make-sparse-keymap)))
 		   
-;; (defun prsj-run-tool (cmd)
-;;   (let ((b (current-buffer))
-;; 	(old-dir default-directory))
-;;     (when prsj-proj-dir (cd prsj-proj-dir))
-;;     (compile cmd)
-;;     (with-current-buffer b (cd old-dir))))
-
-(defmacro prsj-run-tool (buff-type cmd)
-  ;; TODO: Use temp symbols for b and old-dir
-  `(let ((b (current-buffer))
-	 (old-dir default-directory))
-     (when prsj-proj-dir (cd prsj-proj-dir))
-     (buff-type cmd)
-     (with-current-buffer b (cd old-dir))))
+(defun prsj-run-tool (cmd)
+  (let ((b (current-buffer))
+	(old-dir default-directory))
+    (when prsj-proj-dir (cd prsj-proj-dir))
+    (compile cmd)
+    (with-current-buffer b (cd old-dir))))
 
 (defun prsj-setkeys (bindings)
   "Set a series of bindings in the minor mode.
