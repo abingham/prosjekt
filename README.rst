@@ -277,7 +277,25 @@ changes coming from other developers.
 anything integration
 ====================
 
-**TODO**
+Prosjekt can integrate with the brilliant `anything
+<http://emacswiki.org/emacs/Anything>`_ package via
+anything-prosjekt.el. Generally all you need to do to enable anything
+integration is to load anything-prosjekt.el::
+
+  (require 'anything-projekt)
+
+and then add the prosjekt "sources" to anything::
+
+  (require 'anything)
+  (add-to-list 'anything-sources 'anything-c-source-prosjekt-files t)
+  (add-to-list 'anything-sources 'anything-c-source-prosjekt-projects t)
+
+This adds two sources to anything. The first is your list of Prosjekt
+projects by name. You can open a Prosjekt project just by specifying
+it to anything.
+
+The second source is the list of files in your current project (if
+any.) As with projects, you can open project files just by invoking anything.
 
 Files used by prosjekt
 ======================
