@@ -218,7 +218,61 @@ If you ``prosjekt-setup`` buffer these might look like this::
 Project population
 ==================
 
-**TODO**
+While you can add files to your projects via the ``prosjekt-add``
+command, this can be tedious for larger projects. To address this,
+Prosjekt supports the notion of "populating" a project. This
+essentially means finding all of the files under a directory that
+match a particular regular expression, and adding those files to you
+project.
+
+The first command for project population is
+``prosjekt-populate``. This asks you for a directory and a regular
+expression, looking for files under that directory which match the
+regular expression, recursively, and adding the matches to you
+project. You invoke it like this::
+
+  M-x prosjekt-populate <RET> "/my/project" <RET> "\.cpp$" <RET>
+
+The directory argument will default to your project's root
+directory. The regular expression should be suitable as the first
+argument to the ``string-match`` function.
+
+So, for example, to add all of the ``.py`` files under your project's
+``src`` directory, you would execute::
+
+  (prosjekt-populate "/my/project/src" "\.py$")
+
+``populate-spec`` and ``prosjekt-repopulate``
+---------------------------------------------
+
+Another way to populate your project is by defining a "populate-spec"
+in your project config and then running
+``prosjekt-repopulate``. ``populate-spec`` is an optional entry in
+your project configuration assoc-list, the ``cdr`` of which is a list
+of elements of the form ``(project-relative-directory regex1 regex2
+. . .)``.
+
+The ``prosjekt-repopulate`` first clears the project's file list. It
+then simply scans each specified directory for files matching any of
+the regular expressions, adding each match to the project's file list.
+
+For example, to specify the following project contents::
+
+ * All .cpp, .hpp, and .py files under ``<project-root>/src``
+ * All .py files under ``<project-root>/site_scons/build_tools``
+
+you could use a ``populate-spec`` like this::
+
+  (...
+   ("populate-spec"
+    ("src" ".hpp$" ".cpp$" ".py$")
+    ("site_scons/build_tools" ".py$"))
+  )
+
+``prosjekt-repopulate`` was initially designed for new projects under
+heavy development where the contents of a project can change quickly,
+and it's very useful for keeping a project definition up to date with
+changes coming from other developers.
 
 anything integration
 ====================
