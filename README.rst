@@ -138,10 +138,82 @@ When you execute this command, the configuration expression will be
 brought up in an editable buffer. You can edit the expression as you
 like, and you can save the results by pressing the escape key.
 
+Note that the ``prosjekt-setup`` buffer initially displays a
+pretty-printed version of the emacs expression defining your
+project. You are free to stray from the particular formatting of this
+buffer *as long as you keep a valid and structurally correct
+expression*. That is, the exact spacing and indentation of the buffer
+contents don't matter as long as the contents parse as a proper emacs
+list expression. Also note that any formatting you apply will not be
+remembered; the buffer contents are recreated each time you execute ``prosjekt-setup``.
+
 Project commands
 ================
 
-**TODO**
+Project commands are shell commands or emacs functions that you can
+execute from within your project with project-specific
+keybindings. Each project can have any number of commands, each with
+its own keybindings.
+
+You can configure your commands with the ``prosjekt-setup``
+command. The commands are all under the "tools" key in the project
+expression. For example, commands in ``prosjekt-setup`` might look
+something like this::
+
+  (...
+   ("tools"
+    ("[f5]" "emacs" git-status)
+    ("[f6]" "shell" "scons -j12")
+    ("[C-f6]" "shell" "scons -u")
+   ...
+  )
+
+This defines three command. The first binds the emacs function
+``git-status`` to the key "f5". The second binds the "scons -j12" shell
+command to "f6". The third binds "scons -c" to "control-f6".
+
+More generally, each command definition is a list of (key-binding type
+command). The keybinding must be a string suitable as the second
+argument to the standard ``define-key`` function. The command type
+must either be "emacs" or "shell". The nature of the command depends
+on the type. If the type is "emacs" then the command should be the
+name of an emacs function; this function will be run when the
+keybinding is activated.
+
+If the type of a command is "shell", then the command should be a
+shell command, i.e. a command suitable for execution at a command
+prompt. When the keybinding for a shell command is activated, Prosjekt
+will first switch to the project's root directory. It will then
+execute the command inside your compilation buffer.
+
+Command examples
+----------------
+
+Here are a few example commands that you might find useful. The first
+executes "make" from the root of the project when f5 is pressed::
+
+  ("[f5]" "shell" "make")
+
+This next one runs the ahg-status emacs function (for querying the
+status of a mercurial repository) when control-shift-f7 is pressed::
+
+  ("[C-S-f7]" "emacs" ahg-status)
+
+This last example first switches to a new directory and then executes
+a test suite. Note that this assumes bash-like syntax::
+
+  ("[C-f6]" "shell" "cd tests && ./test_suite")
+
+If you ``prosjekt-setup`` buffer these might look like this::
+
+  (("name" . name)
+   ("tools"
+    ("[f5]" "shell" "make")
+    ("[C-S-f7]" "emacs" ahg-status)
+    ("[C-f6]" "shell" "cd tests && ./test_suite"))
+   ("files
+    (..etc...)
+   ))
 
 Project population
 ==================
@@ -168,18 +240,3 @@ and the file is named "<project root directory>/prosjekt.cfg". This
 file contains the list of files in a project, the command definitions
 for the project, the project's populate spec, and various other bits
 of information.
-
-.. Topics
-.. ======
-
-.. * Project setup
-..   * Defining commands
-.. * Adding files to a project
-..   * Using "populate" to add many files.
-..   * Setting up a "populate-spec"
-.. * anything integration
-.. * Command examples:
-..   * running make
-..   * or scons
-..   * git-status
-..   * Execute unittests
