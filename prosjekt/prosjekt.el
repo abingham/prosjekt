@@ -132,6 +132,7 @@
        prsj-proj-file)))
   
 (defun prosjekt-close ()
+  "Close the current project."
   (interactive)
   (prosjekt-save)
   (setq prsj-proj nil)
@@ -144,10 +145,12 @@
 ; TODO: Normalize the error messages. "No project open." everywhere,
 ; or whatever.
 (defun prosjekt-clear ()
+  "Remove all files from the current project."
   (interactive)
   (prsj-set-project-item "files" nil))
 
 (defun prosjekt-setup ()
+  "Edit the project configuration in a new buffer."
   (interactive)
   (unless prsj-proj (error "No current project."))
   (cond ((buffer-live-p prsj-buffer)
