@@ -201,7 +201,7 @@ executes "make" from the root of the project when f5 is pressed::
 This next one runs the ahg-status emacs function (for querying the
 status of a mercurial repository) when control-shift-f7 is pressed::
 
-  ("[C-S-f7]" "emacs" ahg-status)
+  ("[C-S-f7]" "interactive" ahg-status)
 
 This last example first switches to a new directory and then executes
 a test suite. Note that this assumes bash-like syntax::
@@ -213,7 +213,7 @@ If you ``prosjekt-setup`` buffer these might look like this::
   (("name" . name)
    ("tools"
     ("[f5]" "shell" "make")
-    ("[C-S-f7]" "emacs" ahg-status)
+    ("[C-S-f7]" "interactive" ahg-status)
     ("[C-f6]" "shell" "cd tests && ./test_suite"))
    ("files
     (..etc...)
