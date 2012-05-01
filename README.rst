@@ -162,29 +162,33 @@ something like this::
 
   (...
    ("tools"
-    ("[f5]" "emacs" git-status)
+    ("[f5]" "interactive" git-status)
     ("[f6]" "shell" "scons -j12")
     ("[C-f6]" "shell" "scons -u")
+    ("[f7]" "call" (gdb "gdb --annotate=3 my_program"))
    ...
   )
 
-This defines three command. The first binds the emacs function
-``git-status`` to the key "f5". The second binds the "scons -j12" shell
-command to "f6". The third binds "scons -c" to "control-f6".
+This defines four command. The first binds the interactive emacs
+function ``git-status`` to the key "f5". The second binds the "scons
+-j12" shell command to "f6". The third binds "scons -c" to
+"control-f6". The fourth binds "f7" to the non-interactive emacs
+function invocation for launching gdb on a particular program.
 
-More generally, each command definition is a list of (key-binding type
-command). The keybinding must be a string suitable as the second
-argument to the standard ``define-key`` function. The command type
-must either be "emacs" or "shell". The nature of the command depends
-on the type. If the type is "emacs" then the command should be the
-name of an emacs function; this function will be run when the
-keybinding is activated.
+More generally, each command definition is a list of ``(key-binding
+type command)``. The keybinding must be a string suitable as the
+second argument to the standard ``define-key`` function. The command
+type must be one of:
 
-If the type of a command is "shell", then the command should be a
-shell command, i.e. a command suitable for execution at a command
-prompt. When the keybinding for a shell command is activated, Prosjekt
-will first switch to the project's root directory. It will then
-execute the command inside your compilation buffer.
+ * *interactive* - This calls an interactive emacs function. The
+    ``command`` argument must be the name of the interactive function.
+ * *call* - This calls a non-interactive emacs function. The
+    ``command`` argument must be a list of the function and all of its
+    arguments.
+ * *shell* - This calls a shell command from the root directory of the
+    project. The ``command`` argument must be a string specifying the
+    full command to execute. The command will be run in an emacs
+    compilation buffer.
 
 Command examples
 ----------------

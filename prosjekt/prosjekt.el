@@ -376,6 +376,28 @@ This will initialize the entry if needed."
     (compile cmd)
     (with-current-buffer b (cd old-dir))))
 
+(defun prsj-bind-shell-command (key command keymap)
+  "Bind KEY to execute the shell command COMMAND in KEYMAP."
+  ; This code below deals with the fact that elisp has dynamic
+  ; binding. There are possibly
+  ; cleaner ways to write this:
+  ; http://www.google.com/cse?cx=004774160799092323420:6-ff2s0o6yi&q=%22FakeClosures%22
+  (let ((fn (list 'lambda)))
+    (setcdr fn `(() (interactive) 
+		 (prsj-run-tool ',command)))
+    (define-key keymap key fn)))
+
+(defun prsj-bind-interactive-function (key command keymap)
+  (lexical-let ((command command))
+    (define-key keymap key command)))
+
+(defun prsj-bind-function (key command keymap)
+  (lexical-let ((command command))
+    (define-key
+      keymap
+      key
+      (lambda () (interactive) (eval command)))))
+
 (defun prsj-setkeys (bindings)
   "Set a series of bindings in the minor mode.
 ``bindings`` is an alist if (keycode type command)."
@@ -385,19 +407,16 @@ This will initialize the entry if needed."
       (let ((key (read (car b)))
 	    (type (cadr b))
 	    (command (caddr b)))
-	(cond ((equal type "emacs")
-	       (define-key keymap key command))
-	      ((equal type "shell")
-	       ; This code below deals with the fact that elisp has
-	       ; dynamic binding. There are possibly cleaner ways to
-	       ; write this:
-	       ; http://www.google.com/cse?cx=004774160799092323420:6-ff2s0o6yi&q=%22FakeClosures%22
-	       (let ((fn (list 'lambda)))
-		 (setcdr fn `(() (interactive) 
-			      (prsj-run-tool ',command)))
-		 (define-key keymap key fn)))
-	      )
-	))))
+	(cond 
+	 ((equal type "interactive")
+	  (prsj-bind-interactive-function key command keymap))
+	 
+	 ((equal type "call")
+	  (prsj-bind-function key command keymap))
+	 
+	 ((equal type "shell")
+	  (prsj-bind-shell-command key command keymap))
+	)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Populate support
