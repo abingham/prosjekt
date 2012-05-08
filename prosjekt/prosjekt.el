@@ -161,7 +161,8 @@
 	 (emacs-lisp-mode)
 
 	 (let ((keymap (make-sparse-keymap)))
-	   (define-key keymap [escape] 'prsj-setup-save)
+	   (define-key keymap [escape] 'prsj-setup-save-and-close)
+	   (define-key keymap [C-escape] 'prsj-setup-save)
 	   (use-local-map keymap))
 	 
 	 (insert (pp-to-string prsj-proj))
@@ -308,18 +309,26 @@
   (unless prsj-proj (error "No current project."))
   (setcdr (assoc name prsj-proj) val))
 
-(defun prsj-setup-save () 
+(defun prsj-setup-save ()
+  "Save the prsj-buffer contents and the new project definition."
   (interactive) ; this is needed because we bind this method to a key.
   (unless prsj-buffer (error "No edit in progress."))
   (unless prsj-proj-file (error "No current project."))
   (switch-to-buffer prsj-buffer)
   (setq prsj-proj (read (buffer-string)))
-  (kill-buffer prsj-buffer)
-  (setq prsj-buffer nil)
 
   ; Update key bindings with edits
   ; TODO: Other edits to take care of?
   (prsj-setkeys (prsj-get-project-item "tools"))
+  )
+
+(defun prsj-setup-save-and-close () 
+  "Save the prsj-buffer contents and the new project definition,
+and kill that buffer."
+  (interactive) ; this is needed because we bind this method to a key.
+  (prsj-setup-save)
+  (kill-buffer prsj-buffer)
+  (setq prsj-buffer nil)
   )
 
 (defun prsj-proj-files ()
