@@ -42,7 +42,7 @@ config and enable anything integration::
   (add-to-list 'anything-sources 'anything-c-source-prosjekt-files t)
   (add-to-list 'anything-sources 'anything-c-source-prosjekt-projects t)
 
-Now you can create a project with "M-x prosjekt-new". You will be
+Now you can create a project with ``M-x prosjekt-new``. You will be
 asked for a project name and a top-level directory. The project is
 immediately opened after creation.
 
@@ -53,9 +53,10 @@ Once you've got files in your project, you can access them via the
 "anything" interface. Likewise, you can open projects via anything as
 well.
 
-To configure your project, you can run ``M-x prosjekt-setup``. This will
-open a buffer allowing you to edit the emacs s-expression defining
-your project. After editing, press "ESC" to save the edits. See the
+To configure your project, you can run ``M-x prosjekt-setup``. This
+will open a buffer allowing you to edit the emacs s-expression
+defining your project. After editing, press ``ESC`` to save the edits
+(or use ``CTRL-ESC`` to save without killing the buffer.) See the
 sections below for more information on defining commands for your
 project.
 
@@ -135,8 +136,10 @@ project definition: name, files, commands, etc. You can edit this
 expression directly with the ``prosjekt-setup`` command.
 
 When you execute this command, the configuration expression will be
-brought up in an editable buffer. You can edit the expression as you
-like, and you can save the results by pressing the escape key.
+brought up in an editable buffer. You can then edit the expression as
+you like. You can press ``ESC`` to save the configuration and kill the
+buffer. Or, you can use ``CTRL-ESC`` to save the configuration without
+killing the buffer.
 
 Note that the ``prosjekt-setup`` buffer initially displays a
 pretty-printed version of the emacs expression defining your
@@ -170,9 +173,9 @@ something like this::
   )
 
 This defines four command. The first binds the interactive emacs
-function ``git-status`` to the key "f5". The second binds the "scons
--j12" shell command to "f6". The third binds "scons -c" to
-"control-f6". The fourth binds "f7" to the non-interactive emacs
+function ``git-status`` to the key ``f5``. The second binds the ``scons
+-j12`` shell command to ``f6``. The third binds ``scons -c`` to
+``control-f6``. The fourth binds ``f7`` to the non-interactive emacs
 function invocation for launching gdb on a particular program.
 
 More generally, each command definition is a list of ``(key-binding
@@ -194,12 +197,14 @@ Command examples
 ----------------
 
 Here are a few example commands that you might find useful. The first
-executes "make" from the root of the project when f5 is pressed::
+executes ``make`` from the root of the project when ``f5`` is
+pressed::
 
   ("[f5]" "shell" "make")
 
-This next one runs the ahg-status emacs function (for querying the
-status of a mercurial repository) when control-shift-f7 is pressed::
+This next one runs the ``ahg-status`` emacs function (for querying the
+status of a mercurial repository) when ``control-shift-f7`` is
+pressed::
 
   ("[C-S-f7]" "interactive" ahg-status)
 
@@ -208,7 +213,7 @@ a test suite. Note that this assumes bash-like syntax::
 
   ("[C-f6]" "shell" "cd tests && ./test_suite")
 
-If you ``prosjekt-setup`` buffer these might look like this::
+In your ``prosjekt-setup`` buffer these might look like this::
 
   (("name" . name)
    ("tools"
@@ -250,11 +255,10 @@ So, for example, to add all of the ``.py`` files under your project's
 ---------------------------------------------
 
 Another way to populate your project is by defining a "populate-spec"
-in your project config and then running
-``prosjekt-repopulate``. ``populate-spec`` is an optional entry in
-your project configuration assoc-list, the ``cdr`` of which is a list
-of elements of the form ``(project-relative-directory regex1 regex2
-. . .)``.
+in your project config and then running ``prosjekt-repopulate``.
+``populate-spec`` is an optional entry in your project configuration
+assoc-list, the ``cdr`` of which is a list of elements of the form
+``(project-relative-directory regex1 regex2 . . .)``.
 
 The ``prosjekt-repopulate`` first clears the project's file list. It
 then simply scans each specified directory for files matching any of
