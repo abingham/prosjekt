@@ -379,11 +379,11 @@ This will initialize the entry if needed."
   (setcdr (prsj-get-mode-map) (make-sparse-keymap)))
 		   
 (defun prsj-run-tool (cmd)
-  "pushd to prsj-proj-dir, execute (compile CMD), and popd."
+  "pushd to prsj-proj-dir, execute CMD, and popd."
   (let ((b (current-buffer))
 	(old-dir default-directory))
     (when prsj-proj-dir (cd prsj-proj-dir))
-    (compile cmd)
+    (cmd)
     (with-current-buffer b (cd old-dir))))
 
 (defun prsj-bind-shell-command (key command keymap)
@@ -392,7 +392,7 @@ This will initialize the entry if needed."
     (define-key 
       keymap 
       key 
-      (lambda () (interactive) (prsj-run-tool command)))))
+      (lambda () (interactive) (prsj-run-tool (compile command))))))
 
 (defun prsj-bind-interactive-function (key command keymap)
   (lexical-let ((command command))
