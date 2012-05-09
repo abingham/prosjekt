@@ -379,6 +379,7 @@ This will initialize the entry if needed."
   (setcdr (prsj-get-mode-map) (make-sparse-keymap)))
 		   
 (defun prsj-run-tool (cmd)
+  "pushd to prsj-proj-dir, execute (compile CMD), and popd."
   (let ((b (current-buffer))
 	(old-dir default-directory))
     (when prsj-proj-dir (cd prsj-proj-dir))
@@ -387,14 +388,11 @@ This will initialize the entry if needed."
 
 (defun prsj-bind-shell-command (key command keymap)
   "Bind KEY to execute the shell command COMMAND in KEYMAP."
-  ; This code below deals with the fact that elisp has dynamic
-  ; binding. There are possibly
-  ; cleaner ways to write this:
-  ; http://www.google.com/cse?cx=004774160799092323420:6-ff2s0o6yi&q=%22FakeClosures%22
-  (let ((fn (list 'lambda)))
-    (setcdr fn `(() (interactive) 
-		 (prsj-run-tool ',command)))
-    (define-key keymap key fn)))
+  (lexical-let ((command command))
+    (define-key 
+      keymap 
+      key 
+      (lambda () (interactive) (prsj-run-tool command)))))
 
 (defun prsj-bind-interactive-function (key command keymap)
   (lexical-let ((command command))
