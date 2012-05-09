@@ -316,6 +316,7 @@
   (unless prsj-proj-file (error "No current project."))
   (switch-to-buffer prsj-buffer)
   (setq prsj-proj (read (buffer-string)))
+  (minibuffer-message "New configuration enabled.")
 
   ; Update key bindings with edits
   ; TODO: Other edits to take care of?
