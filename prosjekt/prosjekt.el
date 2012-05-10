@@ -384,7 +384,7 @@ This will initialize the entry if needed."
   (let ((b (current-buffer))
 	(old-dir default-directory))
     (when prsj-proj-dir (cd prsj-proj-dir))
-    (cmd)
+    (compile cmd)
     (with-current-buffer b (cd old-dir))))
 
 (defun prsj-bind-shell-command (key command keymap)
@@ -393,7 +393,7 @@ This will initialize the entry if needed."
     (define-key 
       keymap 
       key 
-      (lambda () (interactive) (prsj-run-tool (compile command))))))
+      (lambda () (interactive) (prsj-run-tool command)))))
 
 (defun prsj-bind-interactive-function (key command keymap)
   (lexical-let ((command command))
