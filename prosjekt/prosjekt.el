@@ -115,7 +115,6 @@
     (setq prsj-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
     (setq prsj-proj-dir proj_dir)
     (setq prsj-proj (prsj-read-object-from-file prsj-proj-file))
-    (prsj-reset-keys)
     (prsj-setkeys (prsj-get-project-item "tools"))
     (prsj-set-hooks)
     (let ((curfile (prsj-get-project-item "curfile")))
