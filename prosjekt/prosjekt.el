@@ -111,6 +111,7 @@
   
   (let* ((projects (prsj-get-config-item "project-list"))
 	 (proj_dir (cdr (assoc proj projects))))
+    (prosjekt-close)
     (setq prsj-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
     (setq prsj-proj-dir proj_dir)
     (setq prsj-proj (prsj-read-object-from-file prsj-proj-file))
