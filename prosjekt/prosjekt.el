@@ -123,6 +123,47 @@
 	   (expand-file-name curfile prsj-proj-dir))))
     ))
 
+(defun prosjekt-clone (directory name clone_from)
+  "Clone a new project from an existing project."
+  (interactive
+   (list
+    (read-directory-name 
+     "Create project in directort: ")
+    (read-string 
+     "Project name: ")
+    (completing-read 
+     "Clone from existing project: " 
+     (mapcar 'car (prsj-get-config-item "project-list")))))
+
+  (let* ((projects (prsj-get-config-item "project-list"))
+	 (clone_proj_dir (cdr (assoc clone_from projects)))
+	 (clone_proj_file (expand-file-name "prosjekt.cfg" clone_proj_dir))
+	 (proj (prsj-read-object-from-file clone_proj_file)))
+
+    ; close any existing project
+    (prosjekt-close)
+
+    ; activate the new project specification
+    (setq prsj-proj-file (expand-file-name "prosjekt.cfg" directory))
+    (setq prsj-proj-dir directory)
+    (setq prsj-proj proj)
+
+    ; Update the newly cloned project's name
+    (prsj-set-project-item "name" name)
+
+    ; Activate the keybindings for the new project
+    (prsj-setkeys (prsj-get-project-item "tools"))
+    
+    ; Update the global project list
+    (prsj-set-config-item
+     "project-list"
+     (cons
+      (cons name directory)
+      (prsj-get-config-item "project-list")))
+    
+    ; save the global configuration
+    (prsj-save-config)))
+    
 (defun prosjekt-save ()
   "Save the current project."
   (interactive)
