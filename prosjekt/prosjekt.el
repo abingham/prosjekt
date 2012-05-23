@@ -128,7 +128,7 @@
   (interactive
    (list
     (read-directory-name 
-     "Create project in directort: ")
+     "Create project in directory: ")
     (read-string 
      "Project name: ")
     (completing-read 
@@ -449,7 +449,7 @@ This will initialize the entry if needed."
 
 (defun prsj-setkeys (bindings)
   "Set a series of bindings in the minor mode.
-``bindings`` is an alist if (keycode type command)."
+BINDINGS is a list of (keycode type command)."
 
   (let ((keymap (cdr (prsj-get-mode-map))))
     (dolist (b bindings)
@@ -466,6 +466,17 @@ This will initialize the entry if needed."
 	 ((equal type "shell")
 	  (prsj-bind-shell-command key command keymap))
 	)))))
+
+(defun prosjekt-tool (tool)
+  "Run the project tool TOOL."
+  (interactive
+   (list
+    (completing-read 
+     "Tool: "
+     (("foobar1" 1) ("barfoo" 2) ("foobaz" 3) ("foobar2" 4)))))
+  ;; (prsj-get-project-item "tools"))))
+  (print tool)
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Populate support
