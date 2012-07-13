@@ -35,7 +35,7 @@ First install Prosjekt by copying "prosjekt.el" and
 Next, require "prosjekt" and "anything-prosjekt" in your emacs
 config and enable anything integration::
 
-  (require 'projeckt)
+  (require 'prosjekt)
   (require 'anything-prosjekt)
 
   (require 'anything)
