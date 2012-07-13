@@ -171,6 +171,11 @@
       (prsj-write-object-to-file
        prsj-proj
        prsj-proj-file)))
+
+(defmacro defun-autosave (name args &rest body)
+  "Define a function which automatically calls 'prosjekt-save at
+the end"
+  `(defun ,name ,args ,@body (prosjekt-save)))
   
 (defun prosjekt-close ()
   "Close the current project."
@@ -185,7 +190,7 @@
 
 ; TODO: Normalize the error messages. "No project open." everywhere,
 ; or whatever.
-(defun prosjekt-clear ()
+(defun-autosave prosjekt-clear ()
   "Remove all files from the current project."
   (interactive)
   (prsj-set-project-item "files" nil))
@@ -213,7 +218,7 @@
 	)  ; cond
   )        ; defun
 
-(defun prosjekt-add (f)
+(defun-autosave prosjekt-add (f)
   "Add a file to the current project."
   (interactive
    (let ((_ (unless prsj-proj (error "No project open."))))
@@ -222,7 +227,7 @@
   
   (prsj-insert-file f))
 
-(defun prosjekt-populate (dir p)
+(defun-autosave prosjekt-populate (dir p)
   "Add all files under DIR which match regex P to the project."
   (interactive
    (let ((_ (unless prsj-proj-dir (error "No project open."))))
@@ -350,7 +355,7 @@
   (unless prsj-proj (error "No current project."))
   (setcdr (assoc name prsj-proj) val))
 
-(defun prsj-setup-save ()
+(defun-autosave prsj-setup-save ()
   "Save the prsj-buffer contents and the new project definition."
   (interactive) ; this is needed because we bind this method to a key.
   (unless prsj-buffer (error "No edit in progress."))
