@@ -42,6 +42,10 @@ config and enable anything integration::
   (add-to-list 'anything-sources 'anything-c-source-prosjekt-files t)
   (add-to-list 'anything-sources 'anything-c-source-prosjekt-projects t)
 
+(Note that the use of "anything" with prosjekt is entirely
+optional. If you don't want to use it then just don't use the lines
+with the string "anything" in them.)
+
 Now you can create a project with ``M-x prosjekt-new``. You will be
 asked for a project name and a top-level directory. The project is
 immediately opened after creation.
