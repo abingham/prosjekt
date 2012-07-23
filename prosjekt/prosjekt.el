@@ -1,6 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; prosjekt.el --- a software project tool for emacs
+;;; prosjekt.el --- a software project tool for emacs
 ;;
 ;; Author: Austin Bingham <austin.bingham@gmail.com>
 ;; Version: 0.1
@@ -9,6 +7,8 @@
 ;; This file is not part of GNU Emacs.
 ;;
 ;; Copyright (c) 2012 Austin Bingham
+;;
+;;; Commentary:
 ;;
 ;; Description:
 ;;
@@ -44,7 +44,7 @@
 ;;   (add-to-list 'anything-sources 'anything-c-source-prosjekt-files t)
 ;;   (add-to-list 'anything-sources 'anything-c-source-prosjekt-projects t)
 ;; 
-;; License:
+;;; License:
 ;;
 ;; Permission is hereby granted, free of charge, to any person
 ;; obtaining a copy of this software and associated documentation
@@ -65,6 +65,8 @@
 ;; ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 ;; CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
+
+;;; Code:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; public API
