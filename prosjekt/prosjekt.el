@@ -433,6 +433,13 @@ This will initialize the entry if needed."
     (compile cmd)
     (with-current-buffer b (cd old-dir))))
 
+(defun prosjekt-run-shell-command (cmd)
+  "Run an arbitrary shell command at project root."
+  (interactive
+   (list
+    (read-string "Command: ")))
+  (prsj-run-tool cmd))
+
 (defun prsj-bind-shell-command (key command keymap)
   "Bind KEY to execute the shell command COMMAND in KEYMAP."
   (lexical-let ((command command))
