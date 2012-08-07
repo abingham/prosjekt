@@ -74,6 +74,9 @@
 ; minor-mode-map-alist entry
 (defvar prosjekt-mode t)
 
+(defvar prosjekt-open-hooks '()
+  "Hooks run after any project is opened.")
+
 (defun prosjekt-startup ()
   "Initialize the global configuration information."
   (prsj-load-config))
@@ -122,8 +125,9 @@
     (let ((curfile (prsj-get-project-item "curfile")))
       (if curfile 
 	  (find-file 
-	   (expand-file-name curfile prsj-proj-dir))))
-    ))
+	   (expand-file-name curfile prsj-proj-dir)
+	   (dolist (hook prosjekt-open-hooks)
+	     (funcall hook)))))))
 
 (defun prosjekt-clone (directory name clone_from)
   "Clone a new project from an existing project."
