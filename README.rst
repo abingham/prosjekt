@@ -251,6 +251,28 @@ The ``prosjekt-close-hooks`` are run whenever *any* project is
 closed. The hooks are run before any other processing takes places,
 i.e. at the start of the close logic.
 
+Embedded hooks
+--------------
+
+You can also embed project-specific hooks in a project configuration
+with the ``open-hooks`` and ``close-hooks`` entries. These hooks are
+defined entirely in your project configuration (though they can, of
+course, call other functions), and unlike the global hooks they are
+only executed for the project in which they're defined.
+
+For example, you can define a project-specific open-hook in a project
+configuration like this::
+
+  (...
+   ("open-hooks"
+    (lambda () (message "my embedded open hook")))
+   ...
+  )
+
+The various embedded hooks are executed immediately after their
+corresponding global hooks, i.e. the embedded "open-hooks" are run
+right after the ``prosjekt-open-hooks``.
+
 Project population
 ==================
 
