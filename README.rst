@@ -228,6 +228,29 @@ In your ``prosjekt-setup`` buffer these might look like this::
     (..etc...)
    ))
 
+Hooks
+=====
+
+Prosjekt supports a number of hooks that you can use to run functions
+at specific times. To add your own hook functions, simply put them on
+the appropriate hook list::
+
+  (add-to-list 'prosjekt-hook-name 'my_hook_function)
+
+``prosjekt-open-hooks``
+-----------------------
+
+The ``prosjekt-open-hooks`` are run whenever *any* project is
+opened. The hooks are run after the project is fully opened, i.e. at
+the end of the open logic.
+
+``prosjekt-close-hooks``
+------------------------
+
+The ``prosjekt-close-hooks`` are run whenever *any* project is
+closed. The hooks are run before any other processing takes places,
+i.e. at the start of the close logic.
+
 Project population
 ==================
 
