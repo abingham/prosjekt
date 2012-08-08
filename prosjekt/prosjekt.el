@@ -330,7 +330,7 @@ the end"
 
 (defun prsj-default-project (name)
   '(("name" . name)
-    ("tools" ("[f5]" "emacs" compile))
+    ("tools" ("[f5]" compile))
     ("files")
     ("curfile" . nil)
     ("populate-spec")
@@ -445,75 +445,26 @@ This will initialize the entry if needed."
 (defun prsj-reset-keys ()
   "Clear the keybindings for the minor mode."
   (setcdr (prsj-get-mode-map) (make-sparse-keymap)))
-		   
-(defun prsj-run-tool (cmd)
-  "pushd to prsj-proj-dir, execute CMD, and popd."
-  (let ((b (current-buffer))
-	(old-dir default-directory))
-    (when prsj-proj-dir (cd prsj-proj-dir))
-    (compile cmd)
-    (with-current-buffer b (cd old-dir))))
-
-(defun prosjekt-run-shell-command (cmd)
-  "Run an arbitrary shell command at project root."
-  (interactive
-   (list
-    (read-string "Command: ")))
-  (prsj-run-tool cmd))
-
-(defun prsj-bind-shell-command (key command keymap)
-  "Bind KEY to execute the shell command COMMAND in KEYMAP."
-  (lexical-let ((command command))
-    (define-key 
-      keymap 
-      key 
-      (lambda () (interactive) (prsj-run-tool command)))))
-
-(defun prsj-bind-interactive-function (key command keymap)
-  (lexical-let ((command command))
-    (define-key keymap key command)))
-
-(defun prsj-bind-function (key command keymap)
-  (lexical-let ((command command))
-    (define-key
-      keymap
-      key
-      (lambda () (interactive) (eval command)))))
 
 (defun prsj-setkeys (bindings)
   "Set a series of bindings in the minor mode.
-BINDINGS is a list of (keycode type command)."
-
+BINDINGS is a list of (keycode command)."
   (let ((keymap (cdr (prsj-get-mode-map))))
     (dolist (b bindings)
-      (let ((key (read (car b)))
-	    (type (cadr b))
-	    (command (caddr b)))
-	(cond 
-	 ((equal type "interactive")
-	  (prsj-bind-interactive-function key command keymap))
-	 
-	 ((equal type "call")
-	  (prsj-bind-function key command keymap))
-	 
-	 ((equal type "shell")
-	  (prsj-bind-shell-command key command keymap))
-
-	 (t
-	  (warn "Unknown tool type '%s' used when binding '%s' to the command '%s'"
-		type key command))
-	)))))
-
-(defun prosjekt-tool (tool)
-  "Run the project tool TOOL."
-  (interactive
-   (list
-    (completing-read 
-     "Tool: "
-     (("foobar1" 1) ("barfoo" 2) ("foobaz" 3) ("foobar2" 4)))))
-  ;; (prsj-get-project-item "tools"))))
-  (print tool)
-)
+      (let* ((key (read (car b)))
+	     (command (cadr b))
+	     (is-interactive (interactive-form command)))
+	(lexical-let ((command command)
+		      (is-interactive is-interactive))
+	      (define-key keymap key
+		(lambda ()
+		  (interactive)
+		  (let ((old-dir default-directory))
+		    (when prsj-proj-dir (cd prsj-proj-dir))
+		    (if is-interactive
+			(call-interactively command)
+		      (eval command))
+		    (cd old-dir)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Populate support
