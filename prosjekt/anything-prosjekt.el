@@ -57,22 +57,22 @@
 
 ;;; Code:
 
-(defun prsj-temp-file-name ()
+(defun prosjekt-temp-file-name ()
   (mapcar
    (lambda (item)
-     (expand-file-name (concat prsj-proj-dir item)))
-   (prsj-proj-files)))
+     (expand-file-name (concat prosjekt-proj-dir item)))
+   (prosjekt-proj-files)))
 
 (defvar anything-c-source-prosjekt-files
   '((name . "Files in prosjekt")
     (init . anything-c-source-prosjekt-files-init)
     ;(candidates-in-buffer)
     ; Grab candidates from all project files.
-    (candidates . prsj-temp-file-name)
+    (candidates . prosjekt-temp-file-name)
     (type . file)
     ; TODO: Understand this next one better.
     (real-to-display . (lambda (real)
-                         (file-relative-name real prsj-proj-dir)))
+                         (file-relative-name real prosjekt-proj-dir)))
     )
   "Search for files in the current prosjekt.")
 
@@ -81,15 +81,15 @@
   (with-current-buffer (anything-candidate-buffer 'local)
     (mapcar
      (lambda (item)
-       (insert (format "%s/%s\n" (prsj-get-project-item "name") item)))
-     (prsj-proj-files))))
+       (insert (format "%s/%s\n" (prosjekt-get-project-item "name") item)))
+     (prosjekt-proj-files))))
 
 (defvar anything-c-source-prosjekt-projects
   '((name . "Prosjekt projects")
     (candidates . (lambda ()
                     (mapcar
                      'car
-                     (prsj-get-config-item "project-list"))))
+                     (prosjekt-get-config-item "project-list"))))
     (action ("Open Project" . (lambda (cand)
                                 (prosjekt-open cand)))
             ("Close project" . (lambda (cand)
