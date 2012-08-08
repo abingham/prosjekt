@@ -498,6 +498,10 @@ BINDINGS is a list of (keycode type command)."
 	 
 	 ((equal type "shell")
 	  (prsj-bind-shell-command key command keymap))
+
+	 (t
+	  (warn "Unknown tool type '%s' used when binding '%s' to the command '%s'"
+		type key command))
 	)))))
 
 (defun prosjekt-tool (tool)
