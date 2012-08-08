@@ -128,8 +128,8 @@
     (let ((curfile (prsj-get-project-item "curfile")))
       (if curfile 
 	  (find-file 
-	   (expand-file-name curfile prsj-proj-dir)
-	   (mapc 'funcall prosjekt-open-hooks))))))
+	   (expand-file-name curfile prsj-proj-dir))))
+    (mapc 'funcall prosjekt-open-hooks)))
 
 (defun prosjekt-clone (directory name clone_from)
   "Clone a new project from an existing project."
