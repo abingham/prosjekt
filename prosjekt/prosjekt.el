@@ -129,7 +129,9 @@
       (if curfile 
 	  (find-file 
 	   (expand-file-name curfile prsj-proj-dir))))
-    (mapc 'funcall prosjekt-open-hooks)))
+    (mapc 'funcall prosjekt-open-hooks)
+    (mapc 'funcall (prsj-get-project-item "open-hooks"))
+    ))
 
 (defun prosjekt-clone (directory name clone_from)
   "Clone a new project from an existing project."
@@ -188,7 +190,14 @@ the end"
 (defun prosjekt-close ()
   "Close the current project."
   (interactive)
+
+  ; Run global close hooks
   (mapc 'funcall prosjekt-close-hooks)
+
+  ; Run project close hooks if there's an active project.
+  (if prsj-proj
+      (mapc 'funcall (prsj-get-project-item "close-hooks")))
+
   (prosjekt-save)
   (setq prsj-proj nil)
   (setq prsj-proj-file nil)
@@ -324,6 +333,9 @@ the end"
     ("tools" ("[f5]" "emacs" compile))
     ("files")
     ("curfile" . nil)
+    ("populate-spec")
+    ("open-hooks")
+    ("close-hooks")
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
