@@ -77,6 +77,9 @@
 (defvar prosjekt-open-hooks '()
   "Hooks run after any project is opened.")
 
+(defvar prosjekt-close-hooks '()
+  "Hooks run before any project is closed.")
+
 (defun prosjekt-startup ()
   "Initialize the global configuration information."
   (prsj-load-config))
@@ -126,8 +129,7 @@
       (if curfile 
 	  (find-file 
 	   (expand-file-name curfile prsj-proj-dir)
-	   (dolist (hook prosjekt-open-hooks)
-	     (funcall hook)))))))
+	   (mapc 'funcall prosjekt-open-hooks))))))
 
 (defun prosjekt-clone (directory name clone_from)
   "Clone a new project from an existing project."
@@ -186,6 +188,7 @@ the end"
 (defun prosjekt-close ()
   "Close the current project."
   (interactive)
+  (mapc 'funcall prosjekt-close-hooks)
   (prosjekt-save)
   (setq prsj-proj nil)
   (setq prsj-proj-file nil)
