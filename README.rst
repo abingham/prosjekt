@@ -157,10 +157,9 @@ remembered; the buffer contents are recreated each time you execute ``prosjekt-s
 Project commands
 ================
 
-Project commands are shell commands or emacs functions that you can
-execute from within your project with project-specific
-keybindings. Each project can have any number of commands, each with
-its own keybindings.
+Project commands are emacs functions that you can execute from within
+your project with project-specific keybindings. Each project can have
+any number of commands, each with its own keybindings.
 
 You can configure your commands with the ``prosjekt-setup``
 command. The commands are all under the "tools" key in the project
@@ -169,61 +168,59 @@ something like this::
 
   (...
    ("tools"
-    ("[f5]" "interactive" git-status)
-    ("[f6]" "shell" "scons -j12")
-    ("[C-f6]" "shell" "scons -u")
-    ("[f7]" "call" (gdb "gdb --annotate=3 my_program"))
+    ("[f5]" git-status)
+    ("[f6]" (compile "scons -j12"))
+    ("[f7]" (gdb "gdb --annotate=3 my_program"))
+    ("[f8]" (shell-command "ctags -f TAGS -e -R ."))
    ...
   )
 
 This defines four command. The first binds the interactive emacs
-function ``git-status`` to the key ``f5``. The second binds the ``scons
--j12`` shell command to ``f6``. The third binds ``scons -c`` to
-``control-f6``. The fourth binds ``f7`` to the non-interactive emacs
-function invocation for launching gdb on a particular program.
+function ``git-status`` to the key ``f5``. The second bind a scons
+compilation command to ``f6``. The third binds ``f7`` to the
+non-interactive emacs function invocation for launching gdb on a
+particular program. The fourth binds ``f8`` to a shell command for
+rebuilding a ctags index.
 
 More generally, each command definition is a list of ``(key-binding
-type command)``. The keybinding must be a string suitable as the
+command)``. The keybinding must be a string suitable as the
 second argument to the standard ``define-key`` function. The command
-type must be one of:
-
- * *interactive* - This calls an interactive emacs function. The
-    ``command`` argument must be the name of the interactive function.
- * *call* - This calls a non-interactive emacs function. The
-    ``command`` argument must be a list of the function and all of its
-    arguments.
- * *shell* - This calls a shell command from the root directory of the
-    project. The ``command`` argument must be a string specifying the
-    full command to execute. The command will be run in an emacs
-    compilation buffer.
+type must be an emacs command that can be called with zero arguments.
 
 Command examples
 ----------------
 
 Here are a few example commands that you might find useful. The first
-executes ``make`` from the root of the project when ``f5`` is
-pressed::
+executes ``make`` from the root of the project in a compilation buffer
+when ``f5`` is pressed::
 
-  ("[f5]" "shell" "make")
+  ("[f5]" (compile "make"))
 
 This next one runs the ``ahg-status`` emacs function (for querying the
 status of a mercurial repository) when ``control-shift-f7`` is
 pressed::
 
-  ("[C-S-f7]" "interactive" ahg-status)
+  ("[C-S-f7]" ahg-status)
 
-This last example first switches to a new directory and then executes
-a test suite. Note that this assumes bash-like syntax::
+This example first switches to a new directory and then executes a
+test suite. Note that this assumes bash-like syntax::
 
-  ("[C-f6]" "shell" "cd tests && ./test_suite")
+  ("[C-f6]" (shell-command "cd tests && ./test_suite"))
+
+This final example is an interesting and powerful tool. It prompts the
+user for a command to run and executes that command at the project
+root::
+
+  ("[f9]" shell-command)
 
 In your ``prosjekt-setup`` buffer these might look like this::
 
   (("name" . name)
    ("tools"
-    ("[f5]" "shell" "make")
-    ("[C-S-f7]" "interactive" ahg-status)
-    ("[C-f6]" "shell" "cd tests && ./test_suite"))
+    ("[f5]" (compile "make"))
+    ("[C-S-f7]" ahg-status)
+    ("[C-f6]" (shell-command "cd tests && ./test_suite")
+    ("[f9]" shell-command))
    ("files
     (..etc...)
    ))
