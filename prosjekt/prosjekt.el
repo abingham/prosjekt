@@ -339,7 +339,7 @@ the end"
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; hooks
+;; Attach prosjekt into other hooks.
 
 (defun prsj-set-hooks ()
   (add-hook 'find-file-hook 'prsj-find-file-hook))
