@@ -1,4 +1,5 @@
-.. WARNING:: Commit b75e48f48e on Aug. 8 made significant, breaking
+.. WARNING:: 
+   Commit b75e48f48e on Aug. 8 made significant, breaking
    changes to the tool/keybinding system. You will need to manually
    fix any existing projects you've got to use the new system. The
    good news is that the new system is much better.
