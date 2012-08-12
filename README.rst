@@ -52,6 +52,13 @@ config and enable anything integration::
 optional. If you don't want to use it then just don't use the lines
 with the string "anything" in them.)
 
+To enable helm integration::
+
+  (require 'prosjekt)
+  (require 'helm-anything)
+
+  (global-set-key (kbd "M-$") 'helm-prosjekt)
+
 Now you can create a project with ``M-x prosjekt-new``. You will be
 asked for a project name and a top-level directory. The project is
 immediately opened after creation.
