@@ -1,3 +1,16 @@
+;;; async-shell-command.el --- Adds support for running a background
+;;; command in prosjekt.
+
+;; This file is NOT part of GNU emacs.
+
+;;; Commentary:
+;; This adds a new function prosjekt-run-async-shell-command which
+;; allows you to run a process in the background and get notified if it
+;; succeeds or fails. As a bonus, if you use popwin, you get a nice
+;; popup
+
+;;; Code:
+
 (defun prosjekt-display-process-status (description process)
   (message "%s... Process status: %S"
            description
@@ -34,3 +47,7 @@
     (run (run-with-timer 1 nil
                          'prosjekt-check-process-status
                          description process on-success on-error))))
+
+(provide 'async-shell-command-prosjekt)
+
+;;; async-shell-command.el ends here
