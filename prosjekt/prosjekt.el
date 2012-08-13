@@ -304,15 +304,6 @@ the end"
   (unless prosjekt-proj (error "No current project."))
   (setcdr (assoc name prosjekt-proj) val))
 
-(defun prosjekt-find-project-file ()
-  "Find a file in the current project."
-  (interactive)
-  (let* ((completion-list (prosjekt-proj-files))
-         (prompt "Find file: ")
-         (choice (if (and (boundp 'ido-mode) ido-mode)
-                     (ido-completing-read prompt completion-list nil t)
-                   (completing-read prompt completion-list nil t))))
-    (find-file (concat (file-name-as-directory prosjekt-proj-dir) choice))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; IMPLEMENTATION DETAILS: Users should not generally need to call or look    ;;
