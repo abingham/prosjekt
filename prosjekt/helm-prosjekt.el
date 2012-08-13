@@ -5,7 +5,7 @@
 ;; Version: 0.1
 ;; URL: https://github.com/abingham/prosjekt
 
-;; Originally based on anything-prosjekt by Austin Burmingham
+;; Originally based on anything-prosjekt by Austin Bingham
 
 ;; This file is NOT part of GNU Emacs.
 
