@@ -470,10 +470,12 @@ BINDINGS is a list of (keycode command)."
 	      (define-key keymap key
 		(lambda ()
 		  (interactive)
-		  (let* ((default-directory (or prosjekt-proj-dir default-directory)))
+		  (let ((old-dir default-directory))
+		    (when prosjekt-proj-dir (cd prosjekt-proj-dir))
 		    (if is-interactive
 			(call-interactively command)
-		      (eval command))))))))))
+		      (eval command))
+		    (cd old-dir)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Populate support
