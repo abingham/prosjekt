@@ -1,0 +1,6 @@
+This is a list of people who have contributed to the development of
+prosjekt:
+
+Austin Bingham <https://github.com/abingham>
+kingcheez <https://github.com/kingcheez>
+jmfcbrayer <https://github.com/jfmcbrayer>

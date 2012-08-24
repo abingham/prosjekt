@@ -1,7 +1,7 @@
 ;;; prosjekt.el --- a software project tool for emacs
 ;;
 ;; Author: Austin Bingham <austin.bingham@gmail.com>
-;; Version: 0.1
+;; Version: 0.2
 ;; URL: https://github.com/abingham/prosjekt
 ;;
 ;; This file is not part of GNU Emacs.
@@ -304,6 +304,7 @@ the end"
   (unless prosjekt-proj (error "No current project."))
   (setcdr (assoc name prosjekt-proj) val))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; IMPLEMENTATION DETAILS: Users should not generally need to call or look    ;;
 ;; below here.                                                                ;;
@@ -510,6 +511,13 @@ BINDINGS is a list of (keycode command)."
   (if (string-match p file)
       (prosjekt-insert-file (concat dir file))
       't))
+
+; Add the "ext" directory to the load path. This makes it more
+; convenient for users to load extensions.
+(add-to-list 'load-path
+	     (concat
+	      (file-name-directory load-file-name)
+	      "/ext"))
 
 ;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
