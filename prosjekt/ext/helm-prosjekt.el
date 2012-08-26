@@ -47,8 +47,6 @@
 
 ;;; Code: (copied from anything-prosjekt.el)
 
-(require 'helm-files)
-
 ;; TODO: Share this
 (defun prosjekt-temp-file-name ()
   (mapcar
