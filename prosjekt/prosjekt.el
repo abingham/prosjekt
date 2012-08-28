@@ -471,7 +471,7 @@ BINDINGS is a list of (keycode command)."
 	      (define-key keymap key
 		(lambda ()
 		  (interactive)
-		  (let* ((default-directory (or prosjekt-proj-dir default-directory)))
+		  (let ((default-directory (or prosjekt-proj-dir default-directory)))
 		    (if is-interactive
 			(call-interactively command)
 		      (eval command))))))))))
