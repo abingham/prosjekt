@@ -427,10 +427,8 @@ and kill that buffer."
 (defun prosjekt-insert-file (f)
   (let ((files (prosjekt-get-project-item "files"))
 	(rel_file (file-relative-name f prosjekt-proj-dir)))
-    (unless (assoc rel_file files)
-      (prosjekt-set-project-item 
-       "files"
-       (cons (list rel_file 0) files)))))
+    (unless (gethash rel_file files)
+      (puthash rel_file 0 files))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; support for reading elisp code from files
