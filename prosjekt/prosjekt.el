@@ -422,8 +422,7 @@ and kill that buffer."
 (defun prosjekt-proj-files ()
   "Get the list of files in the active project."
   (if prosjekt-proj
-      (mapcar 'car (prosjekt-get-project-item "files"))
-    (list)))
+      (prosjekt-hash-keys (prosjekt-get-project-item "files"))))
 
 (defun prosjekt-insert-file (f)
   (let ((files (prosjekt-get-project-item "files"))
@@ -519,6 +518,15 @@ BINDINGS is a list of (keycode command)."
   (if (string-match p file)
       (prosjekt-insert-file (concat dir file))
       't))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Other misc. functions
+
+(defun prosjekt-hash-keys (h)
+  "Get the list keys from hash-table H."
+  (let (keys)
+    (maphash (lambda (k v) (setq keys (cons k keys))) h)
+    keys))
 
 ; Add the "ext" directory to the load path. This makes it more
 ; convenient for users to load extensions.
