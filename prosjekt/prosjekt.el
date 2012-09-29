@@ -384,7 +384,7 @@ the end"
 (defun prosjekt-find-file-hook ()
   (let* ((abs_fname (buffer-file-name (current-buffer)))
 	 (rel_fname (file-relative-name abs_fname prosjekt-proj-dir)))
-    (if (member rel_fname (prosjekt-proj-files))
+    (if (gethash rel_fname (prosjekt-proj-files))
 	(prosjekt-set-project-item "curfile" rel_fname))))
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
