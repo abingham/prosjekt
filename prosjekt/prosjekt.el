@@ -111,6 +111,12 @@
 
 ;; TODO: prosjekt-delete
 
+(defun prosjekt-upgrade-project (proj)
+  "Upgrade projects from older version."
+  ; TODO: switch list to hash table
+  proj
+  )
+
 (defun prosjekt-open (proj)
   "Open a project named PROJ."
   (interactive
@@ -123,7 +129,9 @@
     (prosjekt-close)
     (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
     (setq prosjekt-proj-dir proj_dir)
-    (setq prosjekt-proj (prosjekt-read-object-from-file prosjekt-proj-file))
+    (setq prosjekt-proj 
+	  (prosjekt-upgrade-project 
+	   (prosjekt-read-object-from-file prosjekt-proj-file)))
     (prosjekt-setkeys (prosjekt-get-project-item "tools"))
     (prosjekt-set-hooks)
     (let ((curfile (prosjekt-get-project-item "curfile")))
@@ -212,7 +220,7 @@ the end"
 (defun-autosave prosjekt-clear ()
   "Remove all files from the current project."
   (interactive)
-  (prosjekt-set-project-item "files" nil))
+  (prosjekt-set-project-item "files" (make-hash-table :test 'equal)))
 
 (defun prosjekt-setup ()
   "Edit the project configuration in a new buffer."
@@ -357,7 +365,7 @@ the end"
 (defun prosjekt-default-project (name)
   '(("name" . name)
     ("tools" ("[f5]" compile))
-    ("files")
+    ("files" . (make-hash-table :test 'equal))
     ("curfile" . nil)
     ("populate-spec")
     ("open-hooks")
