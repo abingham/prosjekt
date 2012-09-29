@@ -113,9 +113,15 @@
 
 (defun prosjekt-upgrade-project (proj)
   "Upgrade projects from older version."
-  ; TODO: switch list to hash table
-  proj
-  )
+  (let ((files (cdr (assoc "files" proj))))
+    ; If "files" is a list, we need to upgrade it to a hash-table
+    (if (listp files)
+	(let ((hash-files (make-hash-table :test 'equal)))
+	  (mapcar 
+	   (lambda (x) (puthash (car x) (cadr x) hash-files))
+	   files)
+	  (setcdr (assoc "files" proj) hash-files))))
+  proj)
 
 (defun prosjekt-open (proj)
   "Open a project named PROJ."
