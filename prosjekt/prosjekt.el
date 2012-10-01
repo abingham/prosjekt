@@ -81,6 +81,9 @@
 (defvar prosjekt-close-hooks '()
   "Hooks run before any project is closed.")
 
+(defvar prosjekt-ignore-dirs '(".svn" ".git" ".hg" ".bzr" ".cvs")
+  "Directories which are ignored when populating projects.")
+
 (defun prosjekt-startup ()
   "Initialize the global configuration information."
   (prosjekt-load-config))
@@ -506,7 +509,8 @@ BINDINGS is a list of (keycode command)."
 	   (while lst
 	     (setq file (car lst))
 	     (setq lst (cdr lst))
-	     (cond ((member file '("." "..")))
+	     (cond ((or (member file '("." ".."))
+			(member file prosjekt-ignore-dirs)))
 		   (t
 		    (and (funcall action dir file)
 			 (setq fullname (concat dir file))
