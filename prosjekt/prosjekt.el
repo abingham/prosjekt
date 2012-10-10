@@ -112,7 +112,27 @@
   (prosjekt-save-config)
   )
 
-;; TODO: prosjekt-delete
+(defun prosjekt-delete (name)
+  "Delete an existing project."
+  (interactive
+   (list
+    (read-string "Project name: ")))
+
+  ; First, close the current project if it's the one being deleted.
+  (ignore-errors
+    (if (equal name (prosjekt-get-project-item "name"))
+	(prosjekt-close)))
+
+  ; Update the global project list
+  (prosjekt-set-config-item
+   "project-list"
+   (remove* name
+	    (prosjekt-get-config-item "project-list")
+	    :test 'equal
+	    :key 'car))
+
+  ; save the global configuration
+  (prosjekt-save-config))
 
 (defun prosjekt-upgrade-project (proj)
   "Upgrade projects from older version."
