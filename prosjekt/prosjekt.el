@@ -372,15 +372,16 @@ the end"
     ("last-open")))
 
 (defun prosjekt-default-project (name)
-  (list
-   (cons "name" name)
-   '("tools" ("[f5]" compile))
-   (cons "files" (make-hash-table :test 'equal))
-   '("curfile" . nil)
-   '("populate-spec")
-   '("open-hooks")
-   '("close-hooks")
-   ))
+  (let ((files (make-hash-table :test 'equal)))
+    (list
+     (cons "name" name)
+     '("tools" ("[f5]" compile))
+     (cons "files" files)
+     '("curfile" . nil)
+     '("populate-spec")
+     '("open-hooks")
+     '("close-hooks")
+     )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Attach prosjekt into other hooks.
