@@ -1,4 +1,4 @@
-.. WARNING:: 
+.. **WARNING**::
    *Commit b75e48f48e on Aug. 8 made significant, breaking
    changes to the tool/keybinding system. You will need to manually
    fix any existing projects you've got to use the new system. The
@@ -183,7 +183,7 @@ something like this::
    ("tools"
     ("[f5]" git-status)
     ("[f6]" (compile "scons -j12"))
-    ("[f7]" (gdb "gdb --annotate=3 my_program"))
+    ("[f7]" (gdb "gdb --annotate=3 my_program") "run gdb")
     ("[f8]" (shell-command "ctags -f TAGS -e -R ."))
    ...
   )
@@ -192,13 +192,15 @@ This defines four command. The first binds the interactive emacs
 function ``git-status`` to the key ``f5``. The second bind a scons
 compilation command to ``f6``. The third binds ``f7`` to the
 non-interactive emacs function invocation for launching gdb on a
-particular program. The fourth binds ``f8`` to a shell command for
-rebuilding a ctags index.
+particular program and assigns it the name "run gdb". The fourth binds
+``f8`` to a shell command for rebuilding a ctags index.
 
 More generally, each command definition is a list of ``(key-binding
-command)``. The keybinding must be a string suitable as the
+command [name])``. The keybinding must be a string suitable as the
 second argument to the standard ``define-key`` function. The command
-type must be an emacs command that can be called with zero arguments.
+type must be an emacs command that can be called with zero
+arguments. The name can be used to invoke the command by name with the
+``prosjekt-run-tool-by-name`` function.
 
 Command examples
 ----------------
@@ -228,13 +230,13 @@ root::
 
 In your ``prosjekt-setup`` buffer these might look like this::
 
-  (("name" . name)
-   ("tools"
+  ((:name . name)
+   (:tools
     ("[f5]" (compile "make"))
     ("[C-S-f7]" ahg-status)
     ("[C-f6]" (shell-command "cd tests && ./test_suite")
     ("[f9]" shell-command))
-   ("files
+   (:populate-spec
     (..etc...)
    ))
 
@@ -274,7 +276,7 @@ For example, you can define a project-specific open-hook in a project
 configuration like this::
 
   (...
-   ("open-hooks"
+   (:open-hooks
     (lambda () (message "my embedded open hook")))
    ...
   )
@@ -331,7 +333,7 @@ For example, to specify the following project contents::
 you could use a ``populate-spec`` like this::
 
   (...
-   ("populate-spec"
+   (:populate-spec
     ("src" ".hpp$" ".cpp$" ".py$")
     ("site_scons/build_tools" ".py$"))
   )

@@ -134,18 +134,6 @@
   ; save the global configuration
   (prosjekt-save-config))
 
-(defun prosjekt-upgrade-project (proj)
-  "Upgrade projects from older version."
-  (let ((files (cdr (assoc :files proj))))
-    ; If :files is a list, we need to upgrade it to a hash-table
-    (if (listp files)
-	(let ((hash-files (make-hash-table :test 'equal)))
-	  (mapcar 
-	   (lambda (x) (puthash (car x) (cadr x) hash-files))
-	   files)
-	  (setcdr (assoc :files proj) hash-files))))
-  proj)
-
 (defun prosjekt-open (proj)
   "Open a project named PROJ."
   (interactive
@@ -158,9 +146,7 @@
     (prosjekt-close)
     (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
     (setq prosjekt-proj-dir proj_dir)
-    (setq prosjekt-proj 
-	  (prosjekt-upgrade-project 
-	   (prosjekt-read-object-from-file prosjekt-proj-file)))
+    (setq prosjekt-proj (prosjekt-read-object-from-file prosjekt-proj-file))
     (prosjekt-setkeys (prosjekt-get-project-item :tools))
     (prosjekt-set-hooks)
     (let ((curfile (prosjekt-get-project-item :curfile)))
@@ -269,7 +255,10 @@ the end"
 	 
 	 (insert 
 	  (pp-to-string 
-	   (assq-delete-all :files (copy-alist prosjekt-proj))))
+	   (reduce 
+	    (lambda (seq key) (assq-delete-all key seq))
+	    prosjekt-private-fields 
+	    :initial-value (copy-alist prosjekt-proj))))
 
 	 (goto-char (point-min))
 	 ) ; t
@@ -323,6 +312,20 @@ the end"
                                         ; populate using the specified
                                         ; path and pattern
         (prosjekt-populate (concat prosjekt-proj-dir path) pattern)))))
+
+(defun prosjekt-run-tool-by-name (name)
+  (interactive
+   (list
+    (completing-read "Command name: "
+                     (prosjekt-tool-names))))
+  (let ((cmd-desc (first (prosjekt-find-tools-by-name name))))
+    (if cmd-desc
+        (let* ((default-directory (or prosjekt-proj-dir default-directory))
+               (command (nth 1 cmd-desc))
+               (is-interactive (interactive-form command)))
+          (if is-interactive
+              (call-interactively command)
+            (eval command))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; active-project related stuff.
@@ -423,6 +426,9 @@ the end"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; active-project related stuff.
 
+(defvar prosjekt-private-fields '(:curfile :files)
+  "Project fields which are not displayed in the setup buffer.")
+
 (defvar prosjekt-buffer nil
   "The buffer for prosjekt editing tasks.")
 
@@ -436,8 +442,10 @@ the end"
   (unless prosjekt-proj-file (error "No current project."))
   (switch-to-buffer prosjekt-buffer)
   (let ((new-proj (read (buffer-string))))
-    (cons (assoc :files prosjekt-proj) new-proj)
-    (setq prosjekt-proj new-proj))
+    (setq prosjekt-proj
+	  (reduce (lambda (seq key) (cons (assoc key prosjekt-proj) seq))
+		  prosjekt-private-fields
+		  :initial-value new-proj)))
   (minibuffer-message "New configuration enabled.")
 
   ; Update key bindings with edits
@@ -525,20 +533,6 @@ BINDINGS is a list of (keycode command)."
 (defun prosjekt-find-tools-by-name (name)
   (let ((tools (prosjekt-get-project-item :tools)))
     (remove-if-not (lambda (x) (string= (nth 2 x) name)) tools)))
-
-(defun prosjekt-run-tool-by-name (name)
-  (interactive
-   (list
-    (completing-read "Command name: "
-                     (prosjekt-tool-names))))
-  (let ((cmd-desc (first (prosjekt-find-tools-by-name name))))
-    (if cmd-desc
-        (let* ((default-directory (or prosjekt-proj-dir default-directory))
-               (command (nth 1 cmd-desc))
-               (is-interactive (interactive-form command)))
-          (if is-interactive
-              (call-interactively command)
-            (eval command))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Populate support
