@@ -1,8 +1,13 @@
 .. **WARNING**::
-   *Commit b75e48f48e on Aug. 8 made significant, breaking
-   changes to the tool/keybinding system. You will need to manually
-   fix any existing projects you've got to use the new system. The
-   good news is that the new system is much better.*
+
+   *Commit 35b672d7c on Nov. 7
+   introduced significant, breaking changes to the project config
+   syntax system. You can manually fix your project.cfg files by
+   replacing the string keys with keyword counterparts. For example,
+   '"files"' becomes ':files', '"tools"' becomes ':tools', etc. If you
+   don't want to do it manually, you can just remake your projects. We
+   are making no attempt to upgrade project automatically (unless
+   someone wants to submit a patch which does that.)
 
 =============================================
  Prosjekt: A software project tool for emacs
