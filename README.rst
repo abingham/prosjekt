@@ -7,7 +7,7 @@
    replacing the string keys with keyword counterparts. For example,
    '"files"' becomes ':files', '"tools"' becomes ':tools', etc. If you
    don't want to do it manually, you can just remake your projects. We
-   are making no attempt to upgrade project automatically (unless
+   are making no attempt to upgrade projects automatically (unless
    someone wants to submit a patch which does that.)
 
 -----
