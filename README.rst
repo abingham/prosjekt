@@ -8,7 +8,7 @@
    '"files"' becomes ':files', '"tools"' becomes ':tools', etc. If you
    don't want to do it manually, you can just remake your projects. We
    are making no attempt to upgrade project automatically (unless
-   someone wants to submit a patch which does that.
+   someone wants to submit a patch which does that.)
 
 -----
 
