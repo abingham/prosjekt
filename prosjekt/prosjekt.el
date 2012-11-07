@@ -99,7 +99,7 @@
   (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" directory))
   (setq prosjekt-proj-dir directory)
   (setq prosjekt-proj (prosjekt-default-project name))
-  (prosjekt-setkeys (prosjekt-get-project-item "tools"))
+  (prosjekt-setkeys (prosjekt-get-project-item :tools))
 
   ; Update the global project list
   (prosjekt-set-config-item
@@ -120,7 +120,7 @@
 
   ; First, close the current project if it's the one being deleted.
   (ignore-errors
-    (if (equal name (prosjekt-get-project-item "name"))
+    (if (equal name (prosjekt-get-project-item :name))
 	(prosjekt-close)))
 
   ; Update the global project list
@@ -136,14 +136,14 @@
 
 (defun prosjekt-upgrade-project (proj)
   "Upgrade projects from older version."
-  (let ((files (cdr (assoc "files" proj))))
-    ; If "files" is a list, we need to upgrade it to a hash-table
+  (let ((files (cdr (assoc :files proj))))
+    ; If :files is a list, we need to upgrade it to a hash-table
     (if (listp files)
 	(let ((hash-files (make-hash-table :test 'equal)))
 	  (mapcar 
 	   (lambda (x) (puthash (car x) (cadr x) hash-files))
 	   files)
-	  (setcdr (assoc "files" proj) hash-files))))
+	  (setcdr (assoc :files proj) hash-files))))
   proj)
 
 (defun prosjekt-open (proj)
@@ -161,14 +161,14 @@
     (setq prosjekt-proj 
 	  (prosjekt-upgrade-project 
 	   (prosjekt-read-object-from-file prosjekt-proj-file)))
-    (prosjekt-setkeys (prosjekt-get-project-item "tools"))
+    (prosjekt-setkeys (prosjekt-get-project-item :tools))
     (prosjekt-set-hooks)
-    (let ((curfile (prosjekt-get-project-item "curfile")))
+    (let ((curfile (prosjekt-get-project-item :curfile)))
       (if curfile 
 	  (find-file 
 	   (expand-file-name curfile prosjekt-proj-dir))))
     (mapc 'funcall prosjekt-open-hooks)
-    (mapc 'funcall (prosjekt-get-project-item "open-hooks"))
+    (mapc 'funcall (prosjekt-get-project-item :open-hooks))
     ))
 
 (defun prosjekt-clone (directory name clone_from)
@@ -197,10 +197,10 @@
     (setq prosjekt-proj proj)
 
     ; Update the newly cloned project's name
-    (prosjekt-set-project-item "name" name)
+    (prosjekt-set-project-item :name name)
 
     ; Activate the keybindings for the new project
-    (prosjekt-setkeys (prosjekt-get-project-item "tools"))
+    (prosjekt-setkeys (prosjekt-get-project-item :tools))
     
     ; Update the global project list
     (prosjekt-set-config-item
@@ -234,7 +234,7 @@ the end"
 
   ; Run project close hooks if there's an active project.
   (if prosjekt-proj
-      (mapc 'funcall (prosjekt-get-project-item "close-hooks")))
+      (mapc 'funcall (prosjekt-get-project-item :close-hooks)))
 
   (prosjekt-save)
   (setq prosjekt-proj nil)
@@ -249,7 +249,7 @@ the end"
 (defun-autosave prosjekt-clear ()
   "Remove all files from the current project."
   (interactive)
-  (prosjekt-set-project-item "files" (make-hash-table :test 'equal)))
+  (prosjekt-set-project-item :files (make-hash-table :test 'equal)))
 
 (defun prosjekt-setup ()
   "Edit the project configuration in a new buffer."
@@ -267,7 +267,9 @@ the end"
 	   (define-key keymap [C-escape] 'prosjekt-setup-save)
 	   (use-local-map keymap))
 	 
-	 (insert (pp-to-string prosjekt-proj))
+	 (insert 
+	  (pp-to-string 
+	   (assq-delete-all :files (copy-alist prosjekt-proj))))
 
 	 (goto-char (point-min))
 	 ) ; t
@@ -300,7 +302,7 @@ the end"
   "Repopulate the project based on populate-spec."
   (interactive)
   (unless prosjekt-proj-dir (error "No project opened."))
-  (let ((spec (prosjekt-get-project-item "populate-spec")))
+  (let ((spec (prosjekt-get-project-item :populate-spec)))
     (unless spec (error "No populate-spec defined."))
     (prosjekt-clear)
     (while spec
@@ -394,13 +396,13 @@ the end"
 (defun prosjekt-default-project (name)
   (let ((files (make-hash-table :test 'equal)))
     (list
-     (cons "name" name)
-     '("tools" ("[f5]" compile))
-     (cons "files" files)
-     '("curfile" . nil)
-     '("populate-spec")
-     '("open-hooks")
-     '("close-hooks")
+     (cons :name name)
+     '(:tools ("[f5]" compile))
+     (cons :files files)
+     '(:curfile . nil)
+     '(:populate-spec)
+     '(:open-hooks)
+     '(:close-hooks)
      )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -415,8 +417,8 @@ the end"
 (defun prosjekt-find-file-hook ()
   (let* ((abs_fname (buffer-file-name (current-buffer)))
 	 (rel_fname (file-relative-name abs_fname prosjekt-proj-dir)))
-    (if (gethash rel_fname (prosjekt-get-project-item "files"))
-	(prosjekt-set-project-item "curfile" rel_fname))))
+    (if (gethash rel_fname (prosjekt-get-project-item :files))
+	(prosjekt-set-project-item :curfile rel_fname))))
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; active-project related stuff.
@@ -433,12 +435,14 @@ the end"
   (unless prosjekt-buffer (error "No edit in progress."))
   (unless prosjekt-proj-file (error "No current project."))
   (switch-to-buffer prosjekt-buffer)
-  (setq prosjekt-proj (read (buffer-string)))
+  (let ((new-proj (read (buffer-string))))
+    (cons (assoc :files prosjekt-proj) new-proj)
+    (setq prosjekt-proj new-proj))
   (minibuffer-message "New configuration enabled.")
 
   ; Update key bindings with edits
   ; TODO: Other edits to take care of?
-  (prosjekt-setkeys (prosjekt-get-project-item "tools"))
+  (prosjekt-setkeys (prosjekt-get-project-item :tools))
   )
 
 (defun prosjekt-setup-save-and-close () 
@@ -453,10 +457,10 @@ and kill that buffer."
 (defun prosjekt-proj-files ()
   "Get the list of files in the active project."
   (if prosjekt-proj
-      (prosjekt-hash-keys (prosjekt-get-project-item "files"))))
+      (prosjekt-hash-keys (prosjekt-get-project-item :files))))
 
 (defun prosjekt-insert-file (f)
-  (let ((files (prosjekt-get-project-item "files"))
+  (let ((files (prosjekt-get-project-item :files))
 	(rel_file (file-relative-name f prosjekt-proj-dir)))
     (unless (gethash rel_file files)
       (puthash rel_file 0 files))))
@@ -513,13 +517,13 @@ BINDINGS is a list of (keycode command)."
 		      (eval command))))))))))
 
 (defun prosjekt-tool-names ()
-  (let ((tools (prosjekt-get-project-item "tools")))
+  (let ((tools (prosjekt-get-project-item :tools)))
     (mapcar 
      (apply-partially 'nth 2)
      (remove-if (lambda (x) (eq (length x) 2)) tools))))
 
 (defun prosjekt-find-tools-by-name (name)
-  (let ((tools (prosjekt-get-project-item "tools")))
+  (let ((tools (prosjekt-get-project-item :tools)))
     (remove-if-not (lambda (x) (string= (nth 2 x) name)) tools)))
 
 (defun prosjekt-run-tool-by-name (name)
@@ -584,10 +588,10 @@ BINDINGS is a list of (keycode command)."
 
 ; Add the "ext" directory to the load path. This makes it more
 ; convenient for users to load extensions.
-(add-to-list 'load-path
-	     (concat
-	      (file-name-directory load-file-name)
-	      "/ext"))
+;(add-to-list 'load-path
+;	     (concat
+;	      (file-name-directory load-file-name)
+;	      "/ext"))
 
 ;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
