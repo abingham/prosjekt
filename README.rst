@@ -1,5 +1,4 @@
-.. **WARNING**::
-
+.. WARNING::
    *Commit 35b672d7c on Nov. 7
    introduced significant, breaking changes to the project config
    syntax system. You can manually fix your project.cfg files by
