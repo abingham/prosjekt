@@ -582,10 +582,10 @@ BINDINGS is a list of (keycode command)."
 
 ; Add the "ext" directory to the load path. This makes it more
 ; convenient for users to load extensions.
-;(add-to-list 'load-path
-;	     (concat
-;	      (file-name-directory load-file-name)
-;	      "/ext"))
+(add-to-list 'load-path
+	     (concat
+	      (file-name-directory load-file-name)
+	      "/ext"))
 
 ;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
