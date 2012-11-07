@@ -512,6 +512,27 @@ BINDINGS is a list of (keycode command)."
 			(call-interactively command)
 		      (eval command))))))))))
 
+(defun prosjekt-tool-names ()
+  (let ((tools (prosjekt-get-project-item "tools")))
+    (mapcar 
+     (apply-partially 'nth 2)
+     (remove-if (lambda (x) (eq (length x) 2)) tools))))
+
+(defun prosjekt-run-tool-by-name (name)
+  (interactive
+   (list
+    (completing-read "Command name: "
+                     (prosjekt-tool-names))))
+  (let* ((tools (prosjekt-get-project-item "tools"))
+         (command-desc (find name tools :test (lambda (key item) (string= (nth 2 item) key)))))
+    (if command-desc
+        (let* ((default-directory (or prosjekt-proj-dir default-directory))
+               (command (cadr command-desc))
+               (is-interactive (interactive-form command)))
+          (if is-interactive
+              (call-interactively command)
+            (eval command))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Populate support
 
