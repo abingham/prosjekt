@@ -1,7 +1,7 @@
 ;;; prosjekt.el --- a software project tool for emacs
 ;;
 ;; Author: Austin Bingham <austin.bingham@gmail.com>
-;; Version: 0.2
+;; Version: 0.3
 ;; URL: https://github.com/abingham/prosjekt
 ;;
 ;; This file is not part of GNU Emacs.
@@ -392,7 +392,7 @@ the end"
    (prosjekt-config-file)))
 
 (defun prosjekt-default-config ()
-  '(("version" . 0.1)
+  '(("version" . 0.3)
     ("project-list")
     ("last-open")))
 
