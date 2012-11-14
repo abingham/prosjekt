@@ -322,7 +322,9 @@ the end"
     (if cmd-desc
         (let* ((default-directory (or prosjekt-proj-dir default-directory))
                (command (nth 1 cmd-desc))
+               (command-key (nth 0 cmd-desc))
                (is-interactive (interactive-form command)))
+          (message "Keycode is %s" command-key)
           (if is-interactive
               (call-interactively command)
             (eval command))))))
