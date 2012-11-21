@@ -116,7 +116,8 @@
   "Delete an existing project."
   (interactive
    (list
-    (read-string "Project name: ")))
+    (completing-read "Delete project: "
+		 (mapcar 'car (prosjekt-get-config-item "project-list")))))
 
   ; First, close the current project if it's the one being deleted.
   (ignore-errors
@@ -138,7 +139,7 @@
   "Open a project named PROJ."
   (interactive
    (list
-    (completing-read "Open Project: " 
+    (completing-read "Open project: " 
 		     (mapcar 'car (prosjekt-get-config-item "project-list")))))
   
   (let* ((projects (prosjekt-get-config-item "project-list"))
