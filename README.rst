@@ -1,13 +1,16 @@
-.. **WARNING**::
+-----
 
-   *Commit 35b672d7c on Nov. 7
+.. WARNING::
+   Commit 35b672d7c on Nov. 7
    introduced significant, breaking changes to the project config
-   syntax system. You can manually fix your project.cfg files by
+   syntax. You can manually fix your project.cfg files by
    replacing the string keys with keyword counterparts. For example,
    '"files"' becomes ':files', '"tools"' becomes ':tools', etc. If you
    don't want to do it manually, you can just remake your projects. We
-   are making no attempt to upgrade project automatically (unless
+   are making no attempt to upgrade projects automatically (unless
    someone wants to submit a patch which does that.)
+
+-----
 
 =============================================
  Prosjekt: A software project tool for emacs

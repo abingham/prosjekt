@@ -1,7 +1,7 @@
 ;;; prosjekt.el --- a software project tool for emacs
 ;;
 ;; Author: Austin Bingham <austin.bingham@gmail.com>
-;; Version: 0.2
+;; Version: 0.3
 ;; URL: https://github.com/abingham/prosjekt
 ;;
 ;; This file is not part of GNU Emacs.
@@ -116,7 +116,8 @@
   "Delete an existing project."
   (interactive
    (list
-    (read-string "Project name: ")))
+    (completing-read "Delete project: "
+		 (mapcar 'car (prosjekt-get-config-item "project-list")))))
 
   ; First, close the current project if it's the one being deleted.
   (ignore-errors
@@ -138,7 +139,7 @@
   "Open a project named PROJ."
   (interactive
    (list
-    (completing-read "Open Project: " 
+    (completing-read "Open project: " 
 		     (mapcar 'car (prosjekt-get-config-item "project-list")))))
   
   (let* ((projects (prosjekt-get-config-item "project-list"))
@@ -322,7 +323,9 @@ the end"
     (if cmd-desc
         (let* ((default-directory (or prosjekt-proj-dir default-directory))
                (command (nth 1 cmd-desc))
+               (command-key (nth 0 cmd-desc))
                (is-interactive (interactive-form command)))
+          (message "Keycode is %s" command-key)
           (if is-interactive
               (call-interactively command)
             (eval command))))))
@@ -392,7 +395,7 @@ the end"
    (prosjekt-config-file)))
 
 (defun prosjekt-default-config ()
-  '(("version" . 0.1)
+  '(("version" . 0.3)
     ("project-list")
     ("last-open")))
 
@@ -582,10 +585,10 @@ BINDINGS is a list of (keycode command)."
 
 ; Add the "ext" directory to the load path. This makes it more
 ; convenient for users to load extensions.
-;(add-to-list 'load-path
-;	     (concat
-;	      (file-name-directory load-file-name)
-;	      "/ext"))
+(add-to-list 'load-path
+	     (concat
+	      (file-name-directory load-file-name)
+	      "/ext"))
 
 ;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
