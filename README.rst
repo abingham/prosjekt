@@ -1,11 +1,9 @@
 -----
 
 .. WARNING::
-   Commit 35b672d7c on Nov. 7
-   introduced significant, breaking changes to the project config
-   syntax. You can manually fix your project.cfg files by
-   replacing the string keys with keyword counterparts. For example,
-   '"files"' becomes ':files', '"tools"' becomes ':tools', etc. If you
+   On Jan. 3 we introduced significant, breaking changes to the project config
+   syntax. You can manually fix your project.cfg files by updating
+   them to the new tool syntax described below. If you
    don't want to do it manually, you can just remake your projects. We
    are making no attempt to upgrade projects automatically (unless
    someone wants to submit a patch which does that.)
@@ -190,7 +188,7 @@ something like this::
   (...
    (:tools
     ((:keys "[f5]")
-     (:command git-status)
+     (:command . git-status)
      (:name . "git status"))
     ((:keys "[f6]")
      (:command compile "scons -j12")
@@ -234,7 +232,7 @@ status of a mercurial repository) when ``control-shift-f7`` is
 pressed::
 
   ((:keys "[C-S-f7]")
-   (:command ahg-status)
+   (:command . ahg-status)
    (:name . "hg"))
 
 This example first switches to a new directory and then executes a
@@ -249,7 +247,7 @@ user for a command to run and executes that command at the project
 root::
 
   ((:keys "[f9]")
-   (:command shell-command)
+   (:command . shell-command)
    (:name . "shell command"))
 
 In your ``prosjekt-setup`` buffer these might look like this::
@@ -260,13 +258,13 @@ In your ``prosjekt-setup`` buffer these might look like this::
      (:command compile "make")
      (:name "compile"))
     ((:keys "[C-S-f7]")
-     (:command ahg-status)
+     (:command . ahg-status)
      (:name . "hg"))
     ((:keys "[C-f6]")
      (:command shell-command "cd tests && ./test_suite")
      (:name . "tests"))
    ((:keys "[f9]")
-    (:command shell-command)
+    (:command . shell-command)
     (:name . "shell command")))
   (:populate-spec
     (..etc...)
