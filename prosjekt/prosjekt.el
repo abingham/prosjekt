@@ -44,6 +44,21 @@
 ;;   (add-to-list 'anything-sources 'anything-c-source-prosjekt-files t)
 ;;   (add-to-list 'anything-sources 'anything-c-source-prosjekt-projects t)
 ;; 
+;; Tool descriptions: 
+;;
+;; The ":tools" section of a project defines commands which are
+;; associated with the project. Each tool has a name, a function run
+;; for the tool, an optional sequence of keybindings. A tool description looks like this:
+;;   ((:name . "name of tool")
+;;    (:command ...tool function...))
+;;    (:keys ...list of keybinding...))
+;;
+;; for example:
+;;
+;;   ((:name . "git status")
+;;    (:command git-status)
+;;    (:keys "[f5]"))
+;;
 ;;; License:
 ;;
 ;; Permission is hereby granted, free of charge, to any person
@@ -319,13 +334,11 @@ the end"
    (list
     (completing-read "Command name: "
                      (prosjekt-tool-names))))
-  (let ((cmd-desc (first (prosjekt-find-tools-by-name name))))
-    (if cmd-desc
+  (let ((tool (prosjekt-find-tool-by-name name)))
+    (if tool
         (let* ((default-directory (or prosjekt-proj-dir default-directory))
-               (command (nth 1 cmd-desc))
-               (command-key (nth 0 cmd-desc))
+               (command (cdr (assoc :command tool)))
                (is-interactive (interactive-form command)))
-          (message "Keycode is %s" command-key)
           (if is-interactive
               (call-interactively command)
             (eval command))))))
@@ -403,7 +416,7 @@ the end"
   (let ((files (make-hash-table :test 'equal)))
     (list
      (cons :name name)
-     '(:tools ("[f5]" compile))
+     '(:tools (:name "compile" :command compile :keys (list "[f5]")))
      (cons :files files)
      '(:curfile . nil)
      '(:populate-spec)
@@ -509,33 +522,37 @@ This will initialize the entry if needed."
   "Clear the keybindings for the minor mode."
   (setcdr (prosjekt-get-mode-map) (make-sparse-keymap)))
 
-(defun prosjekt-setkeys (bindings)
-  "Set a series of bindings in the minor mode.
-BINDINGS is a list of (keycode command)."
+(defun prosjekt-setkeys (tools)
+  "Set a series of tools in the minor mode.
+TOOLS is a list of keybinding descriptions."
   (let ((keymap (cdr (prosjekt-get-mode-map))))
-    (dolist (b bindings)
-      (let* ((key (read (car b)))
-	     (command (cadr b))
+    (dolist (tool tools)
+      (let* ((keys (cdr (assoc :keys tool)))
+	     (command (cdr (assoc :command tool)))
 	     (is-interactive (interactive-form command)))
-	(lexical-let ((command command)
-		      (is-interactive is-interactive))
+	(dolist (key keys)
+	  (let ((key (read key)))
+	    (lexical-let ((command command)
+			  (is-interactive is-interactive))
 	      (define-key keymap key
 		(lambda ()
 		  (interactive)
 		  (let ((default-directory (or prosjekt-proj-dir default-directory)))
 		    (if is-interactive
 			(call-interactively command)
-		      (eval command))))))))))
+		      (eval command))))))))))))
 
 (defun prosjekt-tool-names ()
   (let ((tools (prosjekt-get-project-item :tools)))
-    (mapcar 
-     (apply-partially 'nth 2)
-     (remove-if (lambda (x) (eq (length x) 2)) tools))))
+    (mapcar (lambda (tool) (cdr (assoc :name tool))) tools)))
 
-(defun prosjekt-find-tools-by-name (name)
+(defun prosjekt-find-tool-by-name (name)
   (let ((tools (prosjekt-get-project-item :tools)))
-    (remove-if-not (lambda (x) (string= (nth 2 x) name)) tools)))
+    (car 
+     (remove-if-not 
+      (lambda (tool) 
+	(string= (cdr (assoc :name tool)) name)) 
+      tools))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Populate support

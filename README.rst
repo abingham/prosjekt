@@ -188,11 +188,19 @@ expression. For example, commands in ``prosjekt-setup`` might look
 something like this::
 
   (...
-   ("tools"
-    ("[f5]" git-status)
-    ("[f6]" (compile "scons -j12"))
-    ("[f7]" (gdb "gdb --annotate=3 my_program") "run gdb")
-    ("[f8]" (shell-command "ctags -f TAGS -e -R ."))
+   (:tools
+    ((:keys "[f5]")
+     (:command git-status)
+     (:name . "git status"))
+    ((:keys "[f6]")
+     (:command compile "scons -j12")
+     (:name . "compile"))
+    ((:keys "[f7]")
+     (:command gdb "gdb --annotate=3 my_program")
+     (:name . "run gdb"))
+    ((:keys "[f8]")
+     (:command shell-command "ctags -f TAGS -e -R .")
+     (:name . "ctags"))
    ...
   )
 
@@ -203,12 +211,12 @@ non-interactive emacs function invocation for launching gdb on a
 particular program and assigns it the name "run gdb". The fourth binds
 ``f8`` to a shell command for rebuilding a ctags index.
 
-More generally, each command definition is a list of ``(key-binding
-command [name])``. The keybinding must be a string suitable as the
-second argument to the standard ``define-key`` function. The command
-type must be an emacs command that can be called with zero
-arguments. The name can be used to invoke the command by name with the
-``prosjekt-run-tool-by-name`` function.
+More generally, each command definition is an alist of ``((:keys
+. . .)  (:command . . .) (:name . "name"))``. The keybindings must be
+strings suitable as the second argument to the standard ``define-key``
+function. The command type must be an emacs command that can be called
+with zero arguments. The name can be used to invoke the command by
+name with the ``prosjekt-run-tool-by-name`` function.
 
 Command examples
 ----------------
@@ -217,36 +225,52 @@ Here are a few example commands that you might find useful. The first
 executes ``make`` from the root of the project in a compilation buffer
 when ``f5`` is pressed::
 
-  ("[f5]" (compile "make"))
+  ((:keys "[f5]")
+   (:command compile "make")
+   (:name "compile"))
 
 This next one runs the ``ahg-status`` emacs function (for querying the
 status of a mercurial repository) when ``control-shift-f7`` is
 pressed::
 
-  ("[C-S-f7]" ahg-status)
+  ((:keys "[C-S-f7]")
+   (:command ahg-status)
+   (:name . "hg"))
 
 This example first switches to a new directory and then executes a
 test suite. Note that this assumes bash-like syntax::
 
-  ("[C-f6]" (shell-command "cd tests && ./test_suite"))
+  ((:keys "[C-f6]")
+   (:command shell-command "cd tests && ./test_suite")
+   (:name . "tests"))
 
 This final example is an interesting and powerful tool. It prompts the
 user for a command to run and executes that command at the project
 root::
 
-  ("[f9]" shell-command)
+  ((:keys "[f9]")
+   (:command shell-command)
+   (:name . "shell command"))
 
 In your ``prosjekt-setup`` buffer these might look like this::
 
   ((:name . name)
    (:tools
-    ("[f5]" (compile "make"))
-    ("[C-S-f7]" ahg-status)
-    ("[C-f6]" (shell-command "cd tests && ./test_suite")
-    ("[f9]" shell-command))
-   (:populate-spec
+    ((:keys "[f5]")
+     (:command compile "make")
+     (:name "compile"))
+    ((:keys "[C-S-f7]")
+     (:command ahg-status)
+     (:name . "hg"))
+    ((:keys "[C-f6]")
+     (:command shell-command "cd tests && ./test_suite")
+     (:name . "tests"))
+   ((:keys "[f9]")
+    (:command shell-command)
+    (:name . "shell command")))
+  (:populate-spec
     (..etc...)
-   ))
+  ))
 
 Hooks
 =====
