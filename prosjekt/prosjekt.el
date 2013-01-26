@@ -422,6 +422,7 @@ the end"
      '(:populate-spec)
      '(:open-hooks)
      '(:close-hooks)
+     '(:version . 1)
      )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -442,7 +443,7 @@ the end"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; active-project related stuff.
 
-(defvar prosjekt-private-fields '(:curfile :files)
+(defvar prosjekt-private-fields '(:curfile :files :version)
   "Project fields which are not displayed in the setup buffer.")
 
 (defvar prosjekt-buffer nil
