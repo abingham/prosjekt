@@ -416,7 +416,10 @@ the end"
   (let ((files (make-hash-table :test 'equal)))
     (list
      (cons :name name)
-     '(:tools (:name "compile" :command compile :keys (list "[f5]")))
+     '(:tools 
+       ((:name . "compile") 
+	(:command . compile) 
+	(:keys (list "[f5]"))))
      (cons :files files)
      '(:curfile . nil)
      '(:populate-spec)
