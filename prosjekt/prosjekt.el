@@ -419,7 +419,7 @@ the end"
      '(:tools 
        ((:name . "compile") 
 	(:command . compile) 
-	(:keys (list "[f5]"))))
+	(:keys "[f5]")))
      (cons :files files)
      '(:curfile . nil)
      '(:populate-spec)
