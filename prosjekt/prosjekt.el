@@ -118,7 +118,7 @@
     (prosjekt-close)
     (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" directory))
     (setq prosjekt-proj-dir directory)
-    (setq prosjekt-proj (prosjekt-default-project name))
+    (setq prosjekt-proj (prosjekt-default-project))
     (prosjekt-setkeys (prosjekt-get-project-item :tools))
 
 					; Update the global project list
@@ -139,21 +139,23 @@
     (completing-read "Delete project: "
 		 (mapcar 'car (prosjekt-get-config-item :project-list)))))
 
-  ; First, close the current project if it's the one being deleted.
-  (ignore-errors
-    (if (equal name (prosjekt-get-project-item :name))
-	(prosjekt-close)))
+  (let ((proj-list (prosjekt-get-config-item :project-list)))
+    ; First, close the current project if it's the one being deleted.
+    (ignore-errors
+      (let ((proj-dir (cdr (assoc name proj-list))))
+	(if (equal prosjekt-proj-dir proj-dir)
+	    (prosjekt-close))))
 
-  ; Update the global project list
-  (prosjekt-set-config-item
-   :project-list
-   (remove* name
-	    (prosjekt-get-config-item :project-list)
-	    :test 'equal
-	    :key 'car))
+    ; Update the global project list
+    (prosjekt-set-config-item
+     :project-list
+     (remove* name
+	      proj-list
+	      :test 'equal
+	      :key 'car))
 
-  ; save the global configuration
-  (prosjekt-save-config))
+    ; save the global configuration
+    (prosjekt-save-config)))
 
 (defun prosjekt-open (proj)
   "Open a project named PROJ."
@@ -202,9 +204,6 @@
     (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" directory))
     (setq prosjekt-proj-dir directory)
     (setq prosjekt-proj proj)
-
-    ; Update the newly cloned project's name
-    (prosjekt-set-project-item :name name)
 
     ; Activate the keybindings for the new project
     (prosjekt-setkeys (prosjekt-get-project-item :tools))
@@ -417,10 +416,9 @@ the end"
     (:project-list)
     (:last-open)))
 
-(defun prosjekt-default-project (name)
+(defun prosjekt-default-project ()
   (let ((files (make-hash-table :test 'equal)))
     (list
-     (cons :name name)
      '(:tools 
        ((:name . "compile") 
 	(:command . compile) 
