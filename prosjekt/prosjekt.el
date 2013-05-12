@@ -413,7 +413,7 @@ the end"
    (prosjekt-config-file)))
 
 (defun prosjekt-default-config ()
-  '((:version . 0.3)
+  '((:version . 1)
     (:project-list)
     (:last-open)))
 
