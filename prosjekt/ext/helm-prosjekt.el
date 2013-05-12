@@ -74,7 +74,7 @@
   (with-current-buffer (helm-candidate-buffer 'local)
     (mapcar
      (lambda (item)
-       (insert (format "%s/%s\n" (prosjekt-get-project-item "name") item)))
+       (insert (format "%s/%s\n" (prosjekt-proj-name) item)))
      (prosjekt-proj-files))))
 
 (defvar helm-c-source-prosjekt-projects
@@ -82,7 +82,7 @@
     (candidates . (lambda ()
                     (mapcar
                      'car
-                     (prosjekt-get-config-item "project-list"))))
+                     (prosjekt-cfg-project-list))))
     (action ("Open Project" . (lambda (cand)
                                 (prosjekt-open cand)))
             ("Close project" . (lambda (cand)
