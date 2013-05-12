@@ -116,10 +116,11 @@
 	(error "A project with that name already exists"))
 
     (prosjekt-close)
-    (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" directory))
-    (setq prosjekt-proj-dir directory)
-    (setq prosjekt-proj (prosjekt-default-project))
-    (prosjekt-setkeys (prosjekt-get-project-item :tools))
+
+					; Write the new project file
+    (prosjekt-write-object-to-file
+     (prosjekt-default-project)
+     (expand-file-name "prosjekt.cfg" directory))
 
 					; Update the global project list
     (prosjekt-set-config-item
@@ -130,6 +131,9 @@
 
 					; save the global configuration
     (prosjekt-save-config)
+
+					; Load it like normal
+    (prosjekt-open name)
     ))
 
 (defun prosjekt-delete (name)
