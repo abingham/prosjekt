@@ -109,7 +109,7 @@
    (list
     (read-directory-name "Create project in directory: ")
     (read-string "Project name: ")))
-  (let ((proj-list (prosjekt-get-config-item "project-list")))
+  (let ((proj-list (prosjekt-get-config-item :project-list)))
     (if (member directory (mapcar 'cdr proj-list))
 	(error "A project already exists in that directory."))
     (if (member name (mapcar 'car proj-list))
@@ -123,7 +123,7 @@
 
 					; Update the global project list
     (prosjekt-set-config-item
-     "project-list"
+     :project-list
      (cons
       (cons name directory)
       proj-list))
@@ -137,7 +137,7 @@
   (interactive
    (list
     (completing-read "Delete project: "
-		 (mapcar 'car (prosjekt-get-config-item "project-list")))))
+		 (mapcar 'car (prosjekt-get-config-item :project-list)))))
 
   ; First, close the current project if it's the one being deleted.
   (ignore-errors
@@ -146,9 +146,9 @@
 
   ; Update the global project list
   (prosjekt-set-config-item
-   "project-list"
+   :project-list
    (remove* name
-	    (prosjekt-get-config-item "project-list")
+	    (prosjekt-get-config-item :project-list)
 	    :test 'equal
 	    :key 'car))
 
@@ -160,9 +160,9 @@
   (interactive
    (list
     (completing-read "Open project: " 
-		     (mapcar 'car (prosjekt-get-config-item "project-list")))))
+		     (mapcar 'car (prosjekt-get-config-item :project-list)))))
   
-  (let* ((projects (prosjekt-get-config-item "project-list"))
+  (let* ((projects (prosjekt-get-config-item :project-list))
 	 (proj_dir (cdr (assoc proj projects))))
     (prosjekt-close)
     (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
@@ -188,9 +188,9 @@
      "Project name: ")
     (completing-read 
      "Clone from existing project: " 
-     (mapcar 'car (prosjekt-get-config-item "project-list")))))
+     (mapcar 'car (prosjekt-get-config-item :project-list)))))
 
-  (let* ((projects (prosjekt-get-config-item "project-list"))
+  (let* ((projects (prosjekt-get-config-item :project-list))
 	 (clone_proj_dir (cdr (assoc clone_from projects)))
 	 (clone_proj_file (expand-file-name "prosjekt.cfg" clone_proj_dir))
 	 (proj (prosjekt-read-object-from-file clone_proj_file)))
@@ -211,10 +211,10 @@
     
     ; Update the global project list
     (prosjekt-set-config-item
-     "project-list"
+     :project-list
      (cons
       (cons name directory)
-      (prosjekt-get-config-item "project-list")))
+      (prosjekt-get-config-item :project-list)))
     
     ; save the global configuration
     (prosjekt-save-config)))
@@ -413,9 +413,9 @@ the end"
    (prosjekt-config-file)))
 
 (defun prosjekt-default-config ()
-  '(("version" . 0.3)
-    ("project-list")
-    ("last-open")))
+  '((:version . 0.3)
+    (:project-list)
+    (:last-open)))
 
 (defun prosjekt-default-project (name)
   (let ((files (make-hash-table :test 'equal)))
@@ -611,10 +611,11 @@ TOOLS is a list of keybinding descriptions."
 
 ; Add the "ext" directory to the load path. This makes it more
 ; convenient for users to load extensions.
-(add-to-list 'load-path
-	     (concat
-	      (file-name-directory load-file-name)
-	      "/ext"))
+(if load-file-name
+    (add-to-list 'load-path
+		 (concat
+		  (file-name-directory load-file-name)
+		  "/ext")))
 
 ;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
