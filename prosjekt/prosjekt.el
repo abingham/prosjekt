@@ -109,23 +109,28 @@
    (list
     (read-directory-name "Create project in directory: ")
     (read-string "Project name: ")))
-  ; TODO: Check for duplicate project name
-  (prosjekt-close)
-  (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" directory))
-  (setq prosjekt-proj-dir directory)
-  (setq prosjekt-proj (prosjekt-default-project name))
-  (prosjekt-setkeys (prosjekt-get-project-item :tools))
+  (let ((proj-list (prosjekt-get-config-item "project-list")))
+    (if (member directory (mapcar 'cdr proj-list))
+	(error "A project already exists in that directory."))
+    (if (member name (mapcar 'car proj-list))
+	(error "A project with that name already exists"))
 
-  ; Update the global project list
-  (prosjekt-set-config-item
-   "project-list"
-   (cons
-    (cons name directory)
-    (prosjekt-get-config-item "project-list")))
+    (prosjekt-close)
+    (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" directory))
+    (setq prosjekt-proj-dir directory)
+    (setq prosjekt-proj (prosjekt-default-project name))
+    (prosjekt-setkeys (prosjekt-get-project-item :tools))
 
-  ; save the global configuration
-  (prosjekt-save-config)
-  )
+					; Update the global project list
+    (prosjekt-set-config-item
+     "project-list"
+     (cons
+      (cons name directory)
+      proj-list))
+
+					; save the global configuration
+    (prosjekt-save-config)
+    ))
 
 (defun prosjekt-delete (name)
   "Delete an existing project."
