@@ -142,9 +142,8 @@
   (let ((proj-list (prosjekt-get-config-item :project-list)))
     ; First, close the current project if it's the one being deleted.
     (ignore-errors
-      (let ((proj-dir (cdr (assoc name proj-list))))
-	(if (equal prosjekt-proj-dir proj-dir)
-	    (prosjekt-close))))
+      (if (equal (prosjekt-proj-name) name)
+	  (prosjekt-close)))
 
     ; Update the global project list
     (prosjekt-set-config-item
@@ -496,6 +495,13 @@ and kill that buffer."
     (unless (gethash rel_file files)
       (puthash rel_file 0 files))))
 
+(defun prosjekt-proj-name ()
+  "Get the name of the current project."
+  (unless prosjekt-proj-dir (error "No current project."))
+  (let ((proj-list (prosjekt-alist-transpose (prosjekt-get-config-item :project-list))))
+    (cdr (assoc prosjekt-proj-dir proj-list))))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; support for reading elisp code from files
 
@@ -606,6 +612,9 @@ TOOLS is a list of keybinding descriptions."
   (let (keys)
     (maphash (lambda (k v) (setq keys (cons k keys))) h)
     keys))
+
+(defun prosjekt-alist-transpose (a)
+  (mapcar (lambda (x) (cons (cdr x) (car x))) a))
 
 ; Add the "ext" directory to the load path. This makes it more
 ; convenient for users to load extensions.
