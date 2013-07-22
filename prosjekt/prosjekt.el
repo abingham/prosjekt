@@ -490,7 +490,7 @@ the end"
   (unless prosjekt-buffer (error "No edit in progress."))
   (unless prosjekt-proj-file (error "No current project."))
   (switch-to-buffer prosjekt-buffer)
-  (let ((new-proj (read (buffer-string))))
+  (let ((new-proj (read-from-whole-string (buffer-string))))
     (setq prosjekt-proj
 	  (reduce (lambda (seq key) (cons (assoc key prosjekt-proj) seq))
 		  prosjekt-private-fields
@@ -499,8 +499,7 @@ the end"
 
   ; Update key bindings with edits
   ; TODO: Other edits to take care of?
-  (prosjekt-setkeys (prosjekt-proj-tools))
-  )
+  (prosjekt-setkeys (prosjekt-proj-tools)))
 
 (defun prosjekt-setup-save-and-close () 
   "Save the prosjekt-buffer contents and the new project definition,
