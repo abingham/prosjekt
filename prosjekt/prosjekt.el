@@ -492,7 +492,11 @@ the end"
   (switch-to-buffer prosjekt-buffer)
   (let ((new-proj (read-from-whole-string (buffer-string))))
     (setq prosjekt-proj
-	  (reduce (lambda (seq key) (cons (assoc key prosjekt-proj) seq))
+	  (reduce (lambda (seq key)
+                    (let ((private_value (assoc key prosjekt-proj)))
+                      (if private_value
+                          (cons (assoc key prosjekt-proj) seq)
+                        seq)))
 		  prosjekt-private-fields
 		  :initial-value new-proj)))
   (minibuffer-message "New configuration enabled.")
