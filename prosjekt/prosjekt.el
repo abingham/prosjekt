@@ -162,7 +162,7 @@
 	 (proj_dir (cdr (assoc proj projects))))
     (prosjekt-close)
     (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
-    (setq prosjekt-proj-dir proj_dir)
+    (setq prosjekt-proj-dir (file-name-as-directory proj_dir))
     (setq prosjekt-proj (prosjekt-read-object-from-file prosjekt-proj-file))
     (prosjekt-setkeys (prosjekt-proj-tools))
     (prosjekt-set-hooks)
