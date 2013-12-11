@@ -1,15 +1,3 @@
------
-
-.. WARNING::
-   On Jan. 3 we introduced significant, breaking changes to the project config
-   syntax. You can manually fix your project.cfg files by updating
-   them to the new tool syntax described below. If you
-   don't want to do it manually, you can just remake your projects. We
-   are making no attempt to upgrade projects automatically (unless
-   someone wants to submit a patch which does that.)
-
------
-
 =============================================
  Prosjekt: A software project tool for emacs
 =============================================
@@ -44,11 +32,11 @@ Quickstart
 First install Prosjekt by copying "prosjekt.el" and
 "anything-prosjekt.el" to your emacs load path.
 
-Next, require "prosjekt" and "anything-prosjekt" in your emacs
+Next, require "prosjekt" and "helm-prosjekt" in your emacs
 config and enable anything integration::
 
   (require 'prosjekt)
-  (require 'anything-prosjekt)
+  (require 'helm-prosjekt)
 
   (require 'anything)
   (add-to-list 'anything-sources 'anything-c-source-prosjekt-files t)
@@ -83,9 +71,12 @@ defining your project. After editing, press ``ESC`` to save the edits
 sections below for more information on defining commands for your
 project.
 
-You can save the state of your project at any time with ``M-x prosjekt-save``.
+You can save the state of your project at any time with ``M-x
+prosjekt-save``. (Though for the most part this is done for you
+automatically.)
 
-Finally, when you done working on your project, run ``M-x prosjekt-close``.
+Finally, when you done working on your project, run ``M-x
+prosjekt-close``.
 
 Basics
 ======
@@ -129,9 +120,9 @@ Opening an existing project: ``prosjekt-open``
 ----------------------------------------------
 
 You can open an existing project with the ``prosjekt-open``
-command. This will ask you for the name of the project. If you're
-using prosjekt's anything integration, you can open projects via
-anything; anything is generally bound to ``C-u``.
+command. This will ask you for the file containing a project
+description. If you're using prosjekt's anything integration, you can
+open projects via anything; anything is generally bound to ``C-u``.
 
 Opening a project will save and close any other projects you have open.
 
@@ -401,13 +392,13 @@ Files used by prosjekt
 
 Prosjekt uses two types of files to keep track of your various
 projects. The first is the global configuration file, "<home
-directory>/.emacs.d/prosjekt.lst". This is nothing more than a list of
-your projects along with the paths to their individual project
-descriptions. There is only one global configuration file.
+directory>/.emacs.d/prosjekt.lst". This is primarily just a list of
+your projects definition files. There is only one global configuration
+file.
 
 The second type of file used by prosjekt is a project
 description. Each of your projects has its own project description,
-and the file is named "<project root directory>/prosjekt.cfg". This
+and the file is named "<project root directory>/<project name>.prosjekt". This
 file contains the list of files in a project, the command definitions
 for the project, the project's populate spec, and various other bits
 of information.
