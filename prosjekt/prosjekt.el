@@ -439,6 +439,7 @@ the end"
     (:project-list)
     (:last-open)))
 
+; TODO: Include name in project definition.
 (defun prosjekt-default-project ()
   (let ((files (make-hash-table :test 'equal)))
     (list
@@ -521,16 +522,6 @@ and kill that buffer."
 	(rel_file (file-relative-name f prosjekt-proj-dir)))
     (unless (gethash rel_file files)
       (puthash rel_file 0 files))))
-
-; TODO: Why do we even need this? Isn't the name part of the project
-; configuration?
-(defun prosjekt-proj-name ()
-  "Get the name of the current project."
-  (unless prosjekt-proj-dir (error "No current project."))
-  (prosjekt-with-cfg
-   (let ((proj-list (prosjekt-alist-transpose (prosjekt-cfg-project-list cfg))))
-     (cdr (assoc prosjekt-proj-dir proj-list)))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; support for reading elisp code from files

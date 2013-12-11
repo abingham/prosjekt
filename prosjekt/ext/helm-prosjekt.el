@@ -74,7 +74,7 @@
   (with-current-buffer (helm-candidate-buffer 'local)
     (mapcar
      (lambda (item)
-       (insert (format "%s/%s\n" (prosjekt-proj-name) item)))
+       (insert (format "%s\n" item)))
      (prosjekt-proj-files))))
 
 (defvar helm-c-source-prosjekt-projects
