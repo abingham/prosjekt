@@ -80,10 +80,8 @@
 (defvar helm-c-source-prosjekt-projects
   '((name . "Prosjekt projects")
     (candidates . (lambda ()
-                    (mapcar
-                     'car
-                     (prosjekt-cfg-project-list))))
-    (action ("Open Project" . (lambda (cand)
+                    (prosjekt-cfg-project-list (prosjekt-cfg-load))))
+    (action ("Open Recent Project" . (lambda (cand)
                                 (prosjekt-open cand)))
             ("Close project" . (lambda (cand)
                                  (prosjekt-close)))))

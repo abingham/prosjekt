@@ -99,80 +99,77 @@
 (defvar prosjekt-ignore-dirs '(".svn" ".git" ".hg" ".bzr" ".cvs")
   "Directories which are ignored when populating projects.")
 
-(defun prosjekt-startup ()
-  "Initialize the global configuration information."
-  (prosjekt-cfg-load))
-
 (defun prosjekt-new (directory name)
   "Create a new project."
   (interactive
    (list
     (read-directory-name "Create project in directory: ")
     (read-string "Project name: ")))
-  (let ((proj-list (prosjekt-cfg-project-list)))
-    (if (member directory (mapcar 'cdr proj-list))
-	(error "A project already exists in that directory."))
-    (if (member name (mapcar 'car proj-list))
-	(error "A project with that name already exists"))
-
-    (prosjekt-close)
-
+  (prosjekt-with-cfg
+   (let ((proj-list (prosjekt-cfg-project-list cfg))
+	 (proj-file (expand-file-name (concat name ".prosjekt") directory)))
+     
+					; TODO: Give option to overwrite.
+     (if (file-exists-p proj-file)
+	 (error "Project file %s already exists." proj-file))
+     
+     (prosjekt-close)
+     
 					; Write the new project file
-    (prosjekt-write-object-to-file
-     (prosjekt-default-project)
-     (expand-file-name "prosjekt.cfg" directory))
-
+     (prosjekt-write-object-to-file
+      (prosjekt-default-project)
+      proj-file)
+     
 					; Update the global project list
-    (prosjekt-cfg-add-project name directory)
-
-					; save the global configuration
-    (prosjekt-cfg-save)
-
+     (prosjekt-cfg-add-project cfg proj-file)
+     
 					; Load it like normal
-    (prosjekt-open name)
-    ))
+     (prosjekt-open proj-file))))
 
-(defun prosjekt-delete (name)
+(defun prosjekt-delete (filename)
   "Delete an existing project."
   (interactive
    (list
-    (completing-read "Delete project: "
-		 (mapcar 'car (prosjekt-cfg-project-list)))))
+    (read-file-name "Delete project: ")))
 
-  (let ((proj-list (prosjekt-cfg-project-list)))
-    ; First, close the current project if it's the one being deleted.
-    (ignore-errors
-      (if (equal (prosjekt-proj-name) name)
-	  (prosjekt-close)))
+  (prosjekt-with-cfg
+   (let ((proj-list (prosjekt-cfg-project-list cfg)))
+					; First, close the current
+					; project if it's the one
+					; being deleted.
+     (ignore-errors
+       (if (equal prosjekt-proj-file filename)
+	   (prosjekt-close)))
 
-    ; Update the global project list
-    (prosjekt-cfg-remove-project name)
+					; Update the global project
+					; list
+     (prosjekt-cfg-remove-project cfg filename))))
 
-    ; save the global configuration
-    (prosjekt-cfg-save)))
-
-(defun prosjekt-open (proj)
-  "Open a project named PROJ."
+(defun prosjekt-open-recent (filename)
+  "Open a project named PROJ in the recent-list."
   (interactive
    (list
     (completing-read "Open project: " 
-		     (mapcar 'car (prosjekt-cfg-project-list)))))
-  
-  (let* ((projects (prosjekt-cfg-project-list))
-	 (proj_dir (cdr (assoc proj projects))))
-    (prosjekt-close)
-    (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" proj_dir))
-    (setq prosjekt-proj-dir (file-name-as-directory proj_dir))
-    (setq prosjekt-proj (prosjekt-read-object-from-file prosjekt-proj-file))
-    (prosjekt-setkeys (prosjekt-proj-tools))
-    (prosjekt-set-hooks)
-    (let ((curfile (prosjekt-proj-curfile)))
-      (if curfile 
-	  (find-file 
-	   (expand-file-name curfile prosjekt-proj-dir))))
-    (mapc 'funcall prosjekt-open-hooks)
-    (mapc 'funcall (prosjekt-proj-open-hooks))
-    ))
+		     (prosjekt-cfg-project-list (prosjekt-cfg-load)))))
+  (prosjekt-open filename))
+
+(defun prosjekt-open (filename)
+  "Open the project defined in FILENAME."
+  (interactive
+   (list
+    (read-file-name "Project file: ")))
+  (prosjekt-close)
+  (setq prosjekt-proj-file filename)
+  (setq prosjekt-proj-dir (file-name-directory filename))
+  (setq prosjekt-proj (prosjekt-read-object-from-file prosjekt-proj-file))
+  (prosjekt-setkeys (prosjekt-proj-tools))
+  (prosjekt-set-hooks)
+  (let ((curfile (prosjekt-proj-curfile)))
+    (if curfile 
+	(find-file 
+	 (expand-file-name curfile prosjekt-proj-dir))))
+  (mapc 'funcall prosjekt-open-hooks)
+  (mapc 'funcall (prosjekt-proj-open-hooks)))
 
 (defun prosjekt-clone (directory name clone_from)
   "Clone a new project from an existing project."
@@ -182,31 +179,29 @@
      "Create project in directory: ")
     (read-string 
      "Project name: ")
-    (completing-read 
-     "Clone from existing project: " 
-     (mapcar 'car (prosjekt-cfg-project-list)))))
+    (read-file-name
+     "Clone from existing project: ")))
 
-  (let* ((projects (prosjekt-cfg-project-list))
-	 (clone_proj_dir (cdr (assoc clone_from projects)))
-	 (clone_proj_file (expand-file-name "prosjekt.cfg" clone_proj_dir))
-	 (proj (prosjekt-read-object-from-file clone_proj_file)))
+  (prosjekt-with-cfg
+   (let* ((proj (prosjekt-read-object-from-file clone_from))
+	  (proj-file (expand-file-name (concat name ".prosjekt") directory)))
 
-    ; close any existing project
-    (prosjekt-close)
+					; close any existing project
+     (prosjekt-close)
 
-    ; activate the new project specification
-    (setq prosjekt-proj-file (expand-file-name "prosjekt.cfg" directory))
-    (setq prosjekt-proj-dir directory)
-    (setq prosjekt-proj proj)
+					; activate the new project
+					; specification
+     (setq prosjekt-proj-file proj-file)
+     (setq prosjekt-proj-dir directory)
+     (setq prosjekt-proj proj)
 
-    ; Activate the keybindings for the new project
-    (prosjekt-setkeys (prosjekt-proj-tools))
-    
-    ; Update the global project list
-    (prosjekt-cfg-add-project name directory)
-    
-    ; save the global configuration
-    (prosjekt-cfg-save)))
+					; Activate the keybindings for
+					; the new project
+     (prosjekt-setkeys (prosjekt-proj-tools))
+     
+					; Update the global project
+					; list
+     (prosjekt-cfg-add-project proj-file))))
     
 (defun prosjekt-save ()
   "Save the current project."
@@ -393,8 +388,36 @@ the end"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global config-related functionality
 
-(defvar prosjekt-config nil 
-  "The global prosjekt configuration.")
+(defmacro prosjekt-with-cfg (&rest body)
+  "Load the global config, run BODY, and save the global config."
+  `(let ((cfg (prosjekt-cfg-load)))
+     (progn ,@body)
+     (prosjekt-cfg-save cfg)))
+
+(defun prosjekt-cfg-add-project (cfg filename)
+  "Add recent-file FILENAME to global config CFG."
+  (let ((plist (assoc :project-list cfg)))
+    (setcdr plist (cons filename (cdr plist)))))
+
+(defun prosjekt-cfg-remove-project (cfg filename)
+  "Remove recent-file FILENAME from global config CFG."
+  (let ((plist (assoc :project-list cfg)))
+    (setcdr plist
+	    (remove* filename
+		     (cdr plist)
+		     :test 'equal))))
+
+; TODO: Add clean-recent-files which is run at start?
+
+(defun prosjekt-cfg-project-list (cfg)
+  (cdr (assoc :project-list cfg)))
+
+(defun prosjekt-cfg-load () 
+  "Read the global prosjekt configuration from file."
+  (let ((fname (prosjekt-cfg-file)))
+    (if (file-exists-p fname)
+	(prosjekt-read-object-from-file fname)
+      (prosjekt-cfg-default))))
 
 (defun prosjekt-cfg-file ()
   "Get the global configuration filename (~/.emacs.d/prosjekt.lst)"
@@ -405,36 +428,10 @@ the end"
      "~/.emacs.d/"
      )))
 
-(defun prosjekt-cfg-project-list ()
-  (cdr (assoc :project-list prosjekt-config)))
-
-(defun prosjekt-cfg-add-project (name dir)
-  (setcdr (assoc :project-list prosjekt-config)
-	  (cons
-	   (cons name dir)
-	   (prosjekt-cfg-project-list))))
-
-(defun prosjekt-cfg-remove-project (name)
-  (setcdr (assoc :project-list prosjekt-config)
-	  (remove* name
-		   (prosjekt-cfg-project-list)
-		   :test 'equal
-		   :key 'car)))
-
-(defun prosjekt-cfg-load ()
-  "Load the global config, assigning it to `prosjekt-config`."
-  (let ((fname (prosjekt-cfg-file)))
-    (setq
-     prosjekt-config
-     (if (file-exists-p fname)
-	 (prosjekt-read-object-from-file 
-	  (prosjekt-cfg-file))
-       (prosjekt-cfg-default)))))
-
-(defun prosjekt-cfg-save ()
+(defun prosjekt-cfg-save (cfg)
   "Save the global config (`prosjekt-config`) to file."
   (prosjekt-write-object-to-file
-   prosjekt-config
+   cfg
    (prosjekt-cfg-file)))
 
 (defun prosjekt-cfg-default ()
@@ -525,11 +522,14 @@ and kill that buffer."
     (unless (gethash rel_file files)
       (puthash rel_file 0 files))))
 
+; TODO: Why do we even need this? Isn't the name part of the project
+; configuration?
 (defun prosjekt-proj-name ()
   "Get the name of the current project."
   (unless prosjekt-proj-dir (error "No current project."))
-  (let ((proj-list (prosjekt-alist-transpose (prosjekt-cfg-project-list))))
-    (cdr (assoc prosjekt-proj-dir proj-list))))
+  (prosjekt-with-cfg
+   (let ((proj-list (prosjekt-alist-transpose (prosjekt-cfg-project-list cfg))))
+     (cdr (assoc prosjekt-proj-dir proj-list)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -656,8 +656,6 @@ TOOLS is a list of keybinding descriptions."
 
 ;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
-
-(prosjekt-startup)
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ;; prosjekt.el ends here
