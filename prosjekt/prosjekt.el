@@ -444,8 +444,8 @@ the end"
   (let ((files (make-hash-table :test 'equal)))
     (list
      '(:tools 
-       ((:name . "compile") 
-	(:command . compile) 
+       ((:name . "git") 
+	(:command . magit-status) 
 	(:keys "[f5]")))
      (cons :files files)
      '(:curfile . nil)
