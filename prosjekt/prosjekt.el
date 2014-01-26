@@ -178,6 +178,7 @@
 
 (defun prosjekt-upgrade-from (project from_version)
   "Upgrade a project format (except for the version tag itself) by one version."
+  (message "Upgrading project format from version %s to version %s" from_version (1+ from_version))
   (cond ((= from_version 1)
 	 (cons (list :ignores) 
 	       (assq-delete-all :populate-spec project)))
@@ -302,44 +303,22 @@ the end"
   
   (prosjekt-insert-file f))
 
-(defun-autosave prosjekt-populate (dir p)
-  "Add all files under DIR which match regex P to the project."
-  (interactive
-   (let ((_ (unless prosjekt-proj-dir (error "No project open."))))
-     (list 
-      (read-directory-name "Directory: " prosjekt-proj-dir)
-      (read-string "Pattern: " ""))))
-
-  (when p
-    (prosjekt-walk-path 
-     dir
-     (lambda (dir file) (prosjekt-add-if p dir file)))))
+(defun-autosave prosjekt-populate (dir ignores)
+  "Add all files under DIR which do not match any patterns in IGNORES."
+  (unless prosjekt-proj-dir (error "No project opened."))
+  (prosjekt-walk-path
+   dir
+   (lambda (dir file)
+     (let ((fullname (concat (file-name-as-directory dir) file)))
+       (if (not (-any? (lambda (p) (string-match p fullname)) ignores))
+	   (prosjekt-insert-file fullname))))))
 
 (defun prosjekt-repopulate ()
-  "Repopulate the project based on populate-spec."
+  "Repopulate the project."
   (interactive)
   (unless prosjekt-proj-dir (error "No project opened."))
-  (let ((spec (prosjekt-proj-populate-spec)))
-    (unless spec (error "No populate-spec defined."))
-    (prosjekt-clear)
-    (while spec
-                                        ; path is the current
-                                        ; project-relative
-                                        ; subdirectory
-      (setq path (caar spec))
-
-                                        ; patterns is the list of
-                                        ; patterns to populate with
-                                        ; from that path
-      (setq patterns (cdar spec))
-      (setq spec (cdr spec))
-      (while patterns
-        (setq pattern (car patterns))
-        (setq patterns (cdr patterns))
-
-                                        ; populate using the specified
-                                        ; path and pattern
-        (prosjekt-populate (concat prosjekt-proj-dir path) pattern)))))
+  (prosjekt-clear)
+  (prosjekt-populate prosjekt-proj-dir (prosjekt-proj-ignores)))
 
 (defun prosjekt-run-tool-by-name (name)
   (interactive
@@ -472,7 +451,7 @@ the end"
 	(:keys "[f5]")))
      (cons :files files)
      '(:curfile . nil)
-     '(:ignores)
+     '(:ignores "*.~")
      '(:open-hooks)
      '(:close-hooks)
      '(:version . prosjekt-format-version)
