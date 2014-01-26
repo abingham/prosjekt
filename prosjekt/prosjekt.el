@@ -99,6 +99,9 @@
 (defvar prosjekt-ignore-dirs '(".svn" ".git" ".hg" ".bzr" ".cvs")
   "Directories which are ignored when populating projects.")
 
+(defconst prosjekt-format-version 2 
+  "The current format version for projects.")
+
 (defun prosjekt-new (directory name)
   "Create a new project."
   (interactive
@@ -161,7 +164,9 @@
   (prosjekt-close)
   (setq prosjekt-proj-file filename)
   (setq prosjekt-proj-dir (file-name-directory filename))
-  (setq prosjekt-proj (prosjekt-read-object-from-file prosjekt-proj-file))
+  (setq prosjekt-proj 
+	(prosjekt-upgrade 
+	 (prosjekt-read-object-from-file prosjekt-proj-file)))
   (prosjekt-setkeys (prosjekt-proj-tools))
   (prosjekt-set-hooks)
   (let ((curfile (prosjekt-proj-curfile)))
@@ -170,6 +175,24 @@
 	 (expand-file-name curfile prosjekt-proj-dir))))
   (mapc 'funcall prosjekt-open-hooks)
   (mapc 'funcall (prosjekt-proj-open-hooks)))
+
+(defun prosjekt-upgrade-from (project from_version)
+  "Upgrade a project format (except for the version tag itself) by one version."
+  (cond ((= from_version 1)
+	 (cons (list :ignores) 
+	       (assq-delete-all :populate-spec project)))
+	(t project)))
+
+(defun prosjekt-upgrade (project)
+  "Upgrade a project to the current format."
+  (let ((from_version (cdr (assoc :version project))))
+    (cond ((= from_version prosjekt-format-version)
+	   project)
+	  ((> from_version prosjekt-format-version)
+	   (error "Project format is from the future! Upgrade prosjekt."))
+	  (t (let ((project (prosjekt-upgrade-from project from_version)))
+	       (setcdr (assoc :version project) (+ from_version 1))
+	       (prosjekt-upgrade project))))))
 
 (defun prosjekt-clone (directory name clone_from)
   "Clone a new project from an existing project."
@@ -369,8 +392,8 @@ the end"
 (defun prosjekt-proj-close-hooks ()
   (prosjekt-proj-get-item_ :close-hooks))
 
-(defun prosjekt-proj-populate-spec ()
-  (prosjekt-proj-get-item_ :populate-spec))
+(defun prosjekt-proj-ignores ()
+  (prosjekt-proj-get-item_ :ignores))
 
 (defun prosjekt-proj-file-hash ()
   (prosjekt-proj-get-item_ :files))
@@ -449,10 +472,10 @@ the end"
 	(:keys "[f5]")))
      (cons :files files)
      '(:curfile . nil)
-     '(:populate-spec)
+     '(:ignores)
      '(:open-hooks)
      '(:close-hooks)
-     '(:version . 1)
+     '(:version . prosjekt-format-version)
      )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
