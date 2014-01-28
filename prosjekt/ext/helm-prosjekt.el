@@ -4,6 +4,7 @@
 ;; Author: Sohail Somani <sohail@taggedtype.net>
 ;; Version: 0.1
 ;; URL: https://github.com/abingham/prosjekt
+;; Package-Requires: ((helm "1.5.9"))
 
 ;; Originally based on anything-prosjekt by Austin Bingham
 
