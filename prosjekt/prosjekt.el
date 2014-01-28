@@ -654,4 +654,4 @@ TOOLS is a list of keybinding descriptions."
 (provide 'prosjekt)
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;; prosjekt.el ends here
+;;; prosjekt.el ends here

@@ -1,4 +1,4 @@
-;;; find-project-file.el --- Finds a file from the current project,
+;;; find-project-file-prosjekt.el --- Finds a file from the current project,
 ;;; using completing-read (or ido-completing-read as appropriate).
 
 ;; This file is NOT part of GNU emacs.
@@ -19,4 +19,4 @@
 
 (provide 'find-project-file-prosjekt)
 
-;;; find-project-file.el ends here
+;;; find-project-file-prosjekt.el ends here
