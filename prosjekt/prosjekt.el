@@ -99,7 +99,7 @@
 (defvar prosjekt-ignore-dirs '(".svn" ".git" ".hg" ".bzr" ".cvs")
   "Directories which are ignored when populating projects.")
 
-(defconst prosjekt-format-version 2 
+(defconst prosjekt-format-version 3
   "The current format version for projects.")
 
 ;;;###autoload
@@ -186,6 +186,8 @@
   (cond ((= from_version 1)
 	 (cons (list :ignores) 
 	       (assq-delete-all :populate-spec project)))
+	((= from_version 2)
+	 (cons (list :includes) project))
 	(t project)))
 
 (defun prosjekt-upgrade (project)
@@ -311,16 +313,21 @@ the end"
   
   (prosjekt-insert-file f))
 
-(defun-autosave prosjekt-populate (dir ignores)
-  "Add all files under DIR which do not match any patterns in IGNORES."
+(defun-autosave prosjekt-populate (dir ignores includes)
+  "Add all files under DIR which a) matches a pattern in INCLUDES
+and b) matches no pattern in IGNORES"
   (unless prosjekt-proj-dir (error "No project opened."))
   (prosjekt-walk-path
    dir
    (lambda (dir file)
-     (let ((fullname (concat (file-name-as-directory dir) file)))
+     (let* ((fullname (concat (file-name-as-directory dir) file))
+	    (is-dir (file-directory-p fullname))
+	    (ignored (-any? (lambda (p) (string-match p fullname)) ignores))
+	    (included (-any? (lambda (p) (string-match p fullname)) includes)))
        (if (and 
-	    (not (file-directory-p fullname))
-	    (not (-any? (lambda (p) (string-match p fullname)) ignores)))
+	    (not is-dir)
+	    (not ignored) 
+	    included)
 	   (prosjekt-insert-file fullname)))
      t)))
 
@@ -330,7 +337,10 @@ the end"
   (interactive)
   (unless prosjekt-proj-dir (error "No project opened."))
   (prosjekt-clear)
-  (prosjekt-populate prosjekt-proj-dir (prosjekt-proj-ignores)))
+  (prosjekt-populate 
+   prosjekt-proj-dir
+   (prosjekt-proj-ignores)
+   (prosjekt-proj-includes)))
 
 ;;;###autoload
 (defun prosjekt-run-tool-by-name (name)
@@ -386,6 +396,9 @@ the end"
 
 (defun prosjekt-proj-ignores ()
   (prosjekt-proj-get-item_ :ignores))
+
+(defun prosjekt-proj-includes ()
+  (prosjekt-proj-get-item_ :includes))
 
 (defun prosjekt-proj-file-hash ()
   (prosjekt-proj-get-item_ :files))
@@ -464,7 +477,8 @@ the end"
 	(:keys "[f5]")))
      (cons :files files)
      '(:curfile . nil)
-     '(:ignores "*.~")
+     '(:ignores ".*~")
+     '(:includes ".*")
      '(:open-hooks)
      '(:close-hooks)
      '(:version . prosjekt-format-version)

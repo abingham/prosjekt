@@ -88,7 +88,7 @@ example:
 
  * Add or remove files
  * Add, remove, or edit the commands
- * Modify the project's populate-spec
+ * Modify the project's ``include`` and ``ignore`` lists
 
 At any time you can save the state of a project with
 ``prosjekt-save``.
@@ -243,12 +243,12 @@ In your ``prosjekt-setup`` buffer these might look like this::
     ((:keys "[C-f6]")
      (:command shell-command "cd tests && ./test_suite")
      (:name . "tests"))
-   ((:keys "[f9]")
-    (:command . shell-command)
-    (:name . "shell command")))
-  (:populate-spec
-    (..etc...)
-  ))
+    ((:keys "[f9]")
+     (:command . shell-command)
+     (:name . "shell command")))
+   (:include "\\.py$" "\\.rst$")
+   (:ignore ".*~")
+  )
 
 Hooks
 =====
@@ -315,24 +315,26 @@ matches to your project. You invoke it like this::
 The regular expressions should be suitable as the first argument to
 the ``string-match`` function.
 
-``ignores`` and ``prosjekt-repopulate``
----------------------------------------
+``includes``, ``ignores``, and ``prosjekt-repopulate``
+------------------------------------------------------
 
-Another way to populate your project is by defining an "ignores" list
-in your project config and then running ``prosjekt-repopulate``.
-``:ignores`` is an optional entry in your project configuration
-assoc-list, the ``cdr`` of which is a list of regular expressions.
+Another way to populate your project is by defining an ``:ignores``
+and ``:includes`` list in your project config and then running
+``prosjekt-repopulate``.  Both are in your project configuration
+assoc-list, the ``cdr`` of which are lists of regular expressions.
 
 The ``prosjekt-repopulate`` first clears the project's file list. It
-then simply scans each specified directory for files that don't match
-any of the regular expressions, adding each non-ignored to the
-project's file list.
+then simply scans each specified directory for files that match an
+entry in the ``includes``. Any of these matches which doesn't *also*
+match an entry in ``ignores`` is added to the project.
 
 For example, to ignore all ``.pyc`` and ``.so`` files under the
-project root you would set your ``:ignores`` like this::
+project root you would set your ``:includes`` and ``:ignores`` like
+this::
 
   (...
-   (:ignores ".*\\.pyc" ".*\\.so")
+   (:includes ".*")
+   (:ignores "\\.pyc$" "\\.so$")
   )
 
 ``prosjekt-repopulate`` was initially designed for new projects under
