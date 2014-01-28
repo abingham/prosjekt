@@ -310,8 +310,11 @@ the end"
    dir
    (lambda (dir file)
      (let ((fullname (concat (file-name-as-directory dir) file)))
-       (if (not (-any? (lambda (p) (string-match p fullname)) ignores))
-	   (prosjekt-insert-file fullname))))))
+       (if (and 
+	    (not (file-directory-p fullname))
+	    (not (-any? (lambda (p) (string-match p fullname)) ignores)))
+	   (prosjekt-insert-file fullname)))
+     t)))
 
 (defun prosjekt-repopulate ()
   "Repopulate the project."
