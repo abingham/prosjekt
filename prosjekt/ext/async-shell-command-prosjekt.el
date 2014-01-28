@@ -1,4 +1,4 @@
-;;; async-shell-command.el --- Adds support for running a background
+;;; async-shell-command-prosjekt.el --- Adds support for running a background
 ;;; command in prosjekt.
 
 ;; This file is NOT part of GNU emacs.
@@ -50,4 +50,4 @@
 
 (provide 'async-shell-command-prosjekt)
 
-;;; async-shell-command.el ends here
+;;; async-shell-command-prosjekt.el ends here
