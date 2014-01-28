@@ -29,29 +29,18 @@ existing capabilities as much as possible.
 Quickstart
 ==========
 
-First install Prosjekt by copying "prosjekt.el" and
-"anything-prosjekt.el" to your emacs load path.
+First install Prosjekt by copying ``prosjekt.el`` and
+``helm-prosjekt.el`` to your emacs load path.
 
-Next, require "prosjekt" and "helm-prosjekt" in your emacs
-config and enable anything integration::
+Next, require ``prosjekt`` and ``helm-prosjekt`` in your emacs
+config and enable ``helm`` integration::
 
   (require 'prosjekt)
   (require 'helm-prosjekt)
 
-  (require 'anything)
-  (add-to-list 'anything-sources 'anything-c-source-prosjekt-files t)
-  (add-to-list 'anything-sources 'anything-c-source-prosjekt-projects t)
-
-(Note that the use of "anything" with prosjekt is entirely
+(Note that the use of ``helm`` with prosjekt is entirely
 optional. If you don't want to use it then just don't use the lines
-with the string "anything" in them.)
-
-To enable helm integration::
-
-  (require 'prosjekt)
-  (require 'helm-anything)
-
-  (global-set-key (kbd "M-$") 'helm-prosjekt)
+with the string ``helm`` in them.)
 
 Now you can create a project with ``M-x prosjekt-new``. You will be
 asked for a project name and a top-level directory. The project is
@@ -61,7 +50,7 @@ Now that you have an open project, you can add files to it with ``M-x
 prosjekt-add`` which will prompt you for a file name.
 
 Once you've got files in your project, you can access them via the
-"anything" interface. Likewise, you can open projects via anything as
+``helm`` interface. Likewise, you can open projects via ``helm`` as
 well.
 
 To configure your project, you can run ``M-x prosjekt-setup``. This
@@ -89,9 +78,9 @@ A project in Prosjekt is essentially:
  * A set of commands that can be run on your project
 
 To work on a project, you must first open it with ``prosjekt-open``
-(or via the anything interface, generally with ``C-u``). Opening a
+(or via the ``helm`` interface, generally with ``C-u``). Opening a
 project closes any other project you had open, and makes the files in
-the project available through the anything interface. Likewise, the
+the project available through the ``helm`` interface. Likewise, the
 commands for a project are only active when a project is open.
 
 As you work with a project, you might edit it in various ways, for
@@ -121,8 +110,8 @@ Opening an existing project: ``prosjekt-open``
 
 You can open an existing project with the ``prosjekt-open``
 command. This will ask you for the file containing a project
-description. If you're using prosjekt's anything integration, you can
-open projects via anything; anything is generally bound to ``C-u``.
+description. If you're using prosjekt's ``helm`` integration, you can
+open projects via ``helm``; ``helm`` is generally bound to ``C-u``.
 
 Opening a project will save and close any other projects you have open.
 
@@ -139,7 +128,7 @@ Closing a project: ``prosjekt-close``
 You can close a project with ``prosjekt-close``. This will first save
 the contents of your project, and then close it. This deactivates your
 projects command and key bindings, and the files in your project will
-no longer be accessible through prosjekt's anything integration.
+no longer be accessible through prosjekt's ``helm`` integration.
 
 Configuring a project: ``prosjekt-setup``
 -----------------------------------------
@@ -351,28 +340,23 @@ heavy development where the contents of a project can change quickly,
 and it's very useful for keeping a project definition up to date with
 changes coming from other developers.
 
-anything integration
-====================
+helm integration
+================
 
-Prosjekt can integrate with the brilliant `anything
-<http://emacswiki.org/emacs/Anything>`_ package via
-anything-prosjekt.el. Generally all you need to do to enable anything
-integration is to load anything-prosjekt.el::
+Prosjekt can integrate with the brilliant `helm
+<http://emacswiki.org/emacs/Helm>`_ package via
+``helm-prosjekt.el``. Generally all you need to do to enable ``helm``
+integration is to load ``helm-prosjekt.el``::
 
-  (require 'anything-projekt)
+  (require 'helm-projekt)
 
-and then add the prosjekt "sources" to anything::
-
-  (require 'anything)
-  (add-to-list 'anything-sources 'anything-c-source-prosjekt-files t)
-  (add-to-list 'anything-sources 'anything-c-source-prosjekt-projects t)
-
-This adds two sources to anything. The first is your list of Prosjekt
+This adds two sources to ``helm``. The first is your list of Prosjekt
 projects by name. You can open a Prosjekt project just by specifying
-it to anything.
+it to ``helm``.
 
 The second source is the list of files in your current project (if
-any.) As with projects, you can open project files just by invoking anything.
+any.) As with projects, you can open project files just by invoking
+``helm``.
 
 Files used by prosjekt
 ======================
