@@ -102,6 +102,7 @@
 (defconst prosjekt-format-version 2 
   "The current format version for projects.")
 
+;;;###autoload
 (defun prosjekt-new (directory name)
   "Create a new project."
   (interactive
@@ -129,6 +130,7 @@
 					; Load it like normal
      (prosjekt-open proj-file))))
 
+;;;###autoload
 (defun prosjekt-delete (filename)
   "Delete an existing project."
   (interactive
@@ -148,6 +150,7 @@
 					; list
      (prosjekt-cfg-remove-project cfg filename))))
 
+;;;###autoload
 (defun prosjekt-open-recent (filename)
   "Open a project named PROJ in the recent-list."
   (interactive
@@ -156,6 +159,7 @@
 		     (prosjekt-cfg-project-list (prosjekt-cfg-load)))))
   (prosjekt-open filename))
 
+;;;###autoload
 (defun prosjekt-open (filename)
   "Open the project defined in FILENAME."
   (interactive
@@ -195,6 +199,7 @@
 	       (setcdr (assoc :version project) (+ from_version 1))
 	       (prosjekt-upgrade project))))))
 
+;;;###autoload
 (defun prosjekt-clone (directory name clone_from)
   "Clone a new project from an existing project."
   (interactive
@@ -226,7 +231,8 @@
 					; Update the global project
 					; list
      (prosjekt-cfg-add-project proj-file))))
-    
+
+;;;###autoload
 (defun prosjekt-save ()
   "Save the current project."
   (interactive)
@@ -239,7 +245,8 @@
   "Define a function which automatically calls 'prosjekt-save at
 the end"
   `(defun ,name ,args ,@body (prosjekt-save)))
-  
+
+;;;###autoload
 (defun prosjekt-close ()
   "Close the current project."
   (interactive)
@@ -266,6 +273,7 @@ the end"
   (interactive)
   (prosjekt-proj-clear-file-hash))
 
+;;;###autoload
 (defun prosjekt-setup ()
   "Edit the project configuration in a new buffer."
   (interactive)
@@ -316,6 +324,7 @@ the end"
 	   (prosjekt-insert-file fullname)))
      t)))
 
+;;;###autoload
 (defun prosjekt-repopulate ()
   "Repopulate the project."
   (interactive)
@@ -323,6 +332,7 @@ the end"
   (prosjekt-clear)
   (prosjekt-populate prosjekt-proj-dir (prosjekt-proj-ignores)))
 
+;;;###autoload
 (defun prosjekt-run-tool-by-name (name)
   (interactive
    (list
@@ -508,6 +518,7 @@ the end"
   ; TODO: Other edits to take care of?
   (prosjekt-setkeys (prosjekt-proj-tools)))
 
+;;;###autoload
 (defun prosjekt-setup-save-and-close () 
   "Save the prosjekt-buffer contents and the new project definition,
 and kill that buffer."
@@ -650,7 +661,6 @@ TOOLS is a list of keybinding descriptions."
 		  (file-name-directory load-file-name)
 		  "/ext")))
 
-;;;###autoload(require 'prosjekt)
 (provide 'prosjekt)
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
