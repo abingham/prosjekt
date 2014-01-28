@@ -4,6 +4,7 @@
 ;; Author: Austin Bingham <austin.bingham@gmail.com>
 ;; Version: 0.1
 ;; URL: https://github.com/abingham/prosjekt
+;; Package-Requires: ((anything "0"))
 
 ;; Originally based on anything-eproject by Daniel Hackney
 ;; http://www.emacswiki.org/emacs/anything-eproject.el
