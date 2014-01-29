@@ -4,6 +4,7 @@
 ;; Author: Austin Bingham <austin.bingham@gmail.com>
 ;; Version: 0.1
 ;; URL: https://github.com/abingham/prosjekt
+;; Package-Requires: ((prosjekt "0.3") (dirtree "0.01"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -43,7 +44,10 @@
 ;; SOFTWARE.
 
 ;;; Code:
+(require 'prosjekt)
+(require 'dirtree)
 
+;;;###autoload
 (defun prosjekt-dirtree ()
   (interactive)
   (dirtree prosjekt-proj-dir t))
