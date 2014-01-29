@@ -7,6 +7,7 @@
 
 ;;; Code:
 
+;;;###autoload
 (defun prosjekt-find-project-file ()
   "Find a file in the current project."
   (interactive)
