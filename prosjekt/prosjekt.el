@@ -481,7 +481,7 @@ and b) matches no pattern in IGNORES"
      '(:includes ".*")
      '(:open-hooks)
      '(:close-hooks)
-     '(:version . prosjekt-format-version)
+     `(:version . ,prosjekt-format-version)
      )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
