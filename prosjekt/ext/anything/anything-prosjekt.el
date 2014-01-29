@@ -98,6 +98,13 @@
                                  (prosjekt-close))))
     "Open or close prosjekt projects."))
 
+;;;###autoload
+(defun anything-prosjekt ()
+  (interactive)
+  (anything-other-buffer '(anything-c-source-prosjekt-files
+                           anything-c-source-prosjekt-projects)
+                          "*anything-prosjekt buffer*"))
+
 (provide 'anything-prosjekt)
 
 ;;; anything-prosjekt.el ends here
