@@ -85,7 +85,7 @@
   (with-current-buffer (anything-candidate-buffer 'local)
     (mapcar
      (lambda (item)
-       (insert (format "%s/%s\n" (prosjekt-proj-name) item)))
+       (insert (format "%s\n" item)))
      (prosjekt-proj-files))))
 
 (defvar anything-c-source-prosjekt-projects
