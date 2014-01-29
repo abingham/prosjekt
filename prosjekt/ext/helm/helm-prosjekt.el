@@ -48,6 +48,7 @@
 
 ;;; Code: (copied from anything-prosjekt.el)
 
+(require 'prosjekt)
 (require 'helm-files)
 
 ;; TODO: Share this

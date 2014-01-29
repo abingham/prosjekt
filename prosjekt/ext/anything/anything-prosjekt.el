@@ -58,6 +58,9 @@
 
 ;;; Code:
 
+(require 'prosjekt)
+(require 'anything)
+
 (defun prosjekt-temp-file-name ()
   (mapcar
    (lambda (item)
