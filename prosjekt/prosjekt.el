@@ -472,9 +472,9 @@ and b) matches no pattern in IGNORES"
   (let ((files (make-hash-table :test 'equal)))
     (list
      '(:tools 
-       ((:name . "git") 
-	(:command . magit-status) 
-	(:keys "[f5]")))
+       ((:name . "sample command") 
+	(:command message "add your command here") 
+	(:keys "[f6]")))
      (cons :files files)
      '(:curfile . nil)
      '(:ignores ".*~")
