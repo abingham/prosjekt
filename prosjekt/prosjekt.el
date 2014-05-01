@@ -234,7 +234,7 @@
      
 					; Update the global project
 					; list
-     (prosjekt-cfg-add-project proj-file))))
+     (prosjekt-cfg-add-project cfg proj-file))))
 
 ;;;###autoload
 (defun prosjekt-save ()
@@ -419,7 +419,7 @@ and b) matches no pattern in IGNORES"
 ;; global config-related functionality
 
 (defmacro prosjekt-with-cfg (&rest body)
-  "Load the global config, run BODY, and save the global config."
+  "Load the global config, bind it to `cfg`, run BODY, and save the global config."
   `(let ((cfg (prosjekt-cfg-load)))
      (progn ,@body)
      (prosjekt-cfg-save cfg)))
