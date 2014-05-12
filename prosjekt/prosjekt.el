@@ -140,7 +140,8 @@
     (read-file-name "Delete project: ")))
 
   (prosjekt-with-cfg
-   (let ((proj-list (prosjekt-cfg-project-list cfg)))
+   (let ((filename (expand-file-name filename))
+	 (proj-list (prosjekt-cfg-project-list cfg)))
 					; First, close the current
 					; project if it's the one
 					; being deleted.
