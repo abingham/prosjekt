@@ -44,8 +44,11 @@ optional. If you don't want to use it then just don't use the lines
 with the string ``helm`` in them.)
 
 Now you can create a project with ``M-x prosjekt-new``. You will be
-asked for a project name and a top-level directory. The project is
-immediately opened after creation.
+asked for a top-level directory and an optional project name. 
+Prosjekt creates a ``.prosjekt`` file for every project it manages, 
+and the optional name is prepended to that filename. You typically 
+only need a name if you're putting more than one project in a 
+directory. The project is immediately opened after creation.
 
 Now that you have an open project, you can add files to it with ``M-x
 prosjekt-add`` which will prompt you for a file name.
