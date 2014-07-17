@@ -17,14 +17,15 @@ source control interaction. Prosjekt currently supports executing both
 shell commands and emacs functions as commands, leveraging emacs'
 existing capabilities as much as possible.
 
-.. admonition:: Lineage
+Lineage
+=======
 
-  Prosjekt was originally based on, and still has many parallels to,
-  the wonderful `eproject
-  <http://www.emacswiki.org/emacs-en/eproject>`_ emacs
-  package. Prosjekt aims to maintain the elegance and simplicity of
-  eproject while extending it and approaching some of the design
-  details differently.
+Prosjekt was originally based on, and still has many parallels to,
+the wonderful `eproject
+<http://www.emacswiki.org/emacs-en/eproject>`_ emacs
+package. Prosjekt aims to maintain the elegance and simplicity of
+eproject while extending it and approaching some of the design
+details differently.
 
 Quickstart
 ==========
