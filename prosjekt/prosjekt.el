@@ -87,6 +87,12 @@
 (require 'thingatpt) ; for read-from-whole-string
 (require 'dash)	     ; for -any?
 
+(defmacro prosjekt-with-cfg (&rest body)
+    "Load the global config, bind it to `cfg`, run BODY, and save the global config."
+    `(let ((cfg (prosjekt-cfg-load)))
+       (progn ,@body)
+       (prosjekt-cfg-save cfg)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PUBLIC API                                                                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -420,13 +426,6 @@ and b) matches no pattern in IGNORES"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; global config-related functionality
-
-(eval-when-compile
-  (defmacro prosjekt-with-cfg (&rest body)
-    "Load the global config, bind it to `cfg`, run BODY, and save the global config."
-    `(let ((cfg (prosjekt-cfg-load)))
-       (progn ,@body)
-       (prosjekt-cfg-save cfg))))
 
 (defun prosjekt-cfg-add-project (cfg filename)
   "Add recent-file FILENAME to global config CFG."
