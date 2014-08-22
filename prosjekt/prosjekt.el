@@ -3,6 +3,7 @@
 ;; Author: Austin Bingham <austin.bingham@gmail.com>
 ;; Version: 0.3
 ;; URL: https://github.com/abingham/prosjekt
+;; Package-Requires: ((dash "2.8.0"))
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
