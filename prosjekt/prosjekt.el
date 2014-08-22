@@ -84,6 +84,7 @@
 ;;; Code:
 
 (require 'thingatpt) ; for read-from-whole-string
+(require 'dash)	     ; for -any?
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PUBLIC API                                                                 ;;
