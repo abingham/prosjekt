@@ -1,3 +1,9 @@
+==============
+IMPORTANT NOTE
+==============
+
+The original author of ``prosjekt`` is not likely to actively maintain it. He's moved over to using ``projectile``, and unless that proves to be really unsuitable (not the case so far) he'll stick with it and abandon ``prosjekt``.
+
 =============================================
  Prosjekt: A software project tool for emacs
 =============================================
