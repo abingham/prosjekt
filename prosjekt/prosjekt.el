@@ -86,6 +86,7 @@
 
 (require 'thingatpt) ; for read-from-whole-string
 (require 'dash)	     ; for -any?
+(require 'cl)
 
 (defmacro prosjekt-with-cfg (&rest body)
     "Load the global config, bind it to `cfg`, run BODY, and save the global config."
