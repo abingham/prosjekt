@@ -86,6 +86,7 @@
 
 (require 'thingatpt) ; for read-from-whole-string
 (require 'dash)	     ; for -any?
+(require 'cl)
 
 (defmacro prosjekt-with-cfg (&rest body)
     "Load the global config, bind it to `cfg`, run BODY, and save the global config."
@@ -111,6 +112,21 @@
 
 (defconst prosjekt-format-version 3
   "The current format version for projects.")
+
+(defvar prosjekt-proj nil
+  "The current project definition.")
+
+(defvar prosjekt-proj-dir nil
+  "The directory of the current project.")
+
+(defvar prosjekt-private-fields '(:curfile :files :version)
+  "Project fields which are not displayed in the setup buffer.")
+
+(defvar prosjekt-buffer nil
+  "The buffer for prosjekt editing tasks.")
+
+(defvar prosjekt-proj-file nil
+  "The filename of the current project.")
 
 ;;;###autoload
 (defun prosjekt-new (directory name)
@@ -371,12 +387,6 @@ and b) matches no pattern in IGNORES"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; active-project related stuff.
 
-(defvar prosjekt-proj nil
-  "The current project definition.")
-
-(defvar prosjekt-proj-dir nil
-  "The directory of the current project.")
-
 (defun prosjekt-proj-check ()
   "Check if a project is currently open, throwing an error if not."
   (unless prosjekt-proj 
@@ -506,15 +516,6 @@ and b) matches no pattern in IGNORES"
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; active-project related stuff.
-
-(defvar prosjekt-private-fields '(:curfile :files :version)
-  "Project fields which are not displayed in the setup buffer.")
-
-(defvar prosjekt-buffer nil
-  "The buffer for prosjekt editing tasks.")
-
-(defvar prosjekt-proj-file nil
-  "The filename of the current project.")
 
 (defun-autosave prosjekt-setup-save ()
   "Save the prosjekt-buffer contents and the new project definition."
